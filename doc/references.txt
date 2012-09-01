@@ -1,0 +1,11 @@
+http://javaserverfaces.java.net/nonav/docs/2.1/vdldocs/facelets/index.html
+http://resources.coreservlets.com/quick-summary.html
+
+ToolTip: 
+ * https://github.com/jaz303/tipsy/tree/master/docs/src
+ * http://onehackoranother.com/projects/jquery/tipsy/
+ 
+Glassfish:
+ * Queues:
+ * SLF4J:
+  1.http://hwellmann.blogspot.com.br/2010/12/glassfish-logging-with-slf4j-part-2.html

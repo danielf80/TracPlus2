@@ -1,0 +1,38 @@
+/*
+Slidebox jQuery banner rotator and image slideshow plugin styling
+*/
+
+/* basic/minimum styling */
+.slidebox{position:relative; border:1px solid #fff; background:#ccc; margin:0 auto; overflow:hidden;}
+.slidebox,.slidebox .slideboxSlide{width:600px;}
+.slidebox,.slidebox .slideboxSlides,.slidebox .slideboxSlide{height:300px;}
+.slidebox ul{position:relative; overflow:hidden; margin:0; padding:0; border:0; list-style-type:none;}
+.slidebox ul li{float:left;}
+.slidebox ul li .slideboxCaption{padding:20px; font-family:Verdana,Geneva,sans-serif; font-size:13px;}
+.slideboxContainer{position:relative; margin:40px auto;}
+.slideboxContainer .slideboxNext,.slideboxContainer .slideboxPrevious{position:absolute; display:block; width:21px; height:21px; top:50%; margin-top:-11px;}
+.slideboxContainer .slideboxNext{right:0; margin-right:10px; background:url(slidebox_next.png) no-repeat;}
+.slideboxContainer .slideboxNext:hover{background:url(slidebox_next_hover.png) no-repeat;}
+.slideboxContainer .slideboxPrevious{margin-left:10px; background:url(slidebox_previous.png) no-repeat;}
+.slideboxContainer .slideboxPrevious:hover{background:url(slidebox_previous_hover.png) no-repeat;}
+.slideboxContainer .slideboxThumbs{position:absolute; bottom:10px; right:10px; text-align:center;}
+.slideboxContainer .slideboxThumbs .slideboxThumb{display:inline-block; margin:0 3px; background:#666; min-width:10px; min-height:10px; text-decoration:none; font-size:12px; color:#fff;}
+.slideboxContainer .slideboxThumbs .slideboxThumb:hover,.slideboxContainer .slideboxThumbs .selectedSlideboxThumb{background:#fff; color:#666;}
+
+/* classic/additional styling */
+#slidebox_1{border:5px solid #fff; background:#eee; box-shadow:0 0 40px rgba(0,0,0,0.3); border-radius:6px;}
+#slidebox_1 ul li .slideboxCaption{display:block; position:relative; padding:0; width:600px; height:300px; color:#666; text-decoration:none;}
+#slidebox_1 ul li .slideboxCaption span{display:block; position:absolute; padding:5px 10px; background:#fff; border-radius:4px;}
+#slidebox_1 ul .slideboxSlide_1 .slideboxCaption span,#slidebox_1 ul .slideboxSlide_5 .slideboxCaption span{left:20px; bottom:20px;}
+#slidebox_1 ul .slideboxSlide_2 .slideboxCaption span{left:20px; top:20px;}
+#slidebox_1 ul .slideboxSlide_3 .slideboxCaption span{right:20px; top:20px;}
+#slidebox_1 ul .slideboxSlide_4 .slideboxCaption span{right:20px; bottom:20px;}
+.slideboxContainer #slidebox_1+.slideboxThumbs{position:relative; margin-top:30px;}
+.slideboxContainer #slidebox_1+.slideboxThumbs .slideboxThumb{border-radius:10px; background:#ccc; box-shadow:inset 0 0 5px rgba(0,0,0,0.3);}
+.slideboxContainer #slidebox_1+.slideboxThumbs .slideboxThumb:hover,.slideboxContainer #slidebox_1+.slideboxThumbs .selectedSlideboxThumb{background:#fff; box-shadow:inset 0 0 4px rgba(0,0,0,0.2),0 0 2px rgba(0,0,0,0.2);}
+.slideboxContainer #slidebox_1+.slideboxThumbs .slideboxThumb:active{background:#eee;}
+.slideboxContainer #slidebox_1~.slideboxNext,.slideboxContainer #slidebox_1~.slideboxPrevious{width:30px; height:30px; border-radius:21px; margin:-35px 0 0 0; background-color:#ccc; background-image:url(slidebox_icons.png); background-repeat:no-repeat; background-position:0px 0px; box-shadow:inset 0 0 10px rgba(0,0,0,0.2);}
+.slideboxContainer #slidebox_1~.slideboxNext{background-position:-30px 0px;}
+.slideboxContainer #slidebox_1~.slideboxPrevious:hover,.slideboxContainer #slidebox_1~.slideboxNext:hover{background-color:#fff; background-position:0px -30px; box-shadow:inset 0 0 10px rgba(0,0,0,0.2),0 0 3px rgba(0,0,0,0.2);}
+.slideboxContainer #slidebox_1~.slideboxNext:hover{background-position:-30px -30px;}
+.slideboxContainer #slidebox_1~.slideboxPrevious:active,.slideboxContainer #slidebox_1~.slideboxNext:active{background-color:#eee;}
