@@ -13,11 +13,12 @@ import javax.jms.MapMessage;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.redxiii.tracplus.ejb.datasources.Datasource;
-import com.redxiii.tracplus.ejb.datasources.Mock;
 import com.redxiii.tracplus.ejb.datasources.TicketQueryResult;
 import com.redxiii.tracplus.ejb.entity.Attachment;
 import com.redxiii.tracplus.ejb.entity.Wiki;
@@ -37,8 +38,9 @@ import com.redxiii.tracplus.ejb.util.PDFExtraction;
 public class TracIndexerQueue implements MessageListener {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
+	private final DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd_HH:mm:ss");
 	
-	@Inject @Mock
+	@Inject
 	private Datasource datasource;
 	
 	@Inject
@@ -129,7 +131,7 @@ public class TracIndexerQueue implements MessageListener {
 		List<TracStuff> stuffs = new ArrayList<TracStuff>();
 		String path = AppConfiguration.getInstance().getString("lucene.index-builder.attachments.path");
 		
-		logger.info("Loading attachments details between '{}' and '{}'", rangeStart, rangeEnd);
+		logger.info("Loading attachments details between '{}' and '{}'", formatter.print(rangeStart), formatter.print(rangeEnd));
 		List<Attachment> attachments = datasource.getTicketAttachments(rangeStart, rangeEnd);
 		
 		logger.info("Handling '{}' attachments", attachments.size());

@@ -1,10 +1,17 @@
 package com.redxiii.tracplus.ejb.datasources;
 
+import java.io.PrintWriter;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.ConcurrencyManagement;
@@ -36,7 +43,8 @@ public class TracDS implements Datasource {
 	@PostConstruct
 	public void init() {
 		logger.info("Loading database connection");
-		access = new PostgreSQLDB("192.168.0.3", "trac", "trac", "trac");
+//		access = new PostgreSQLDB("trac-db", "trac", "trac", "trac");
+		access = new SQLiteDB("T:\\db\\trac.db");
 	}
 	
 	/* (non-Javadoc)
@@ -44,7 +52,7 @@ public class TracDS implements Datasource {
 	 */
 	@Override
 	public Number getLastTicketId() {
-		return access.executeScalarQuery("SELECT max(id) as ticket FROM trac.ticket");
+		return access.executeScalarQuery("SELECT max(id) as ticket FROM ticket");
 	}
 	
 	/* (non-Javadoc)
@@ -52,7 +60,7 @@ public class TracDS implements Datasource {
 	 */
 	@Override
 	public Number getFirstTicketId() {
-		return access.executeScalarQuery("SELECT min(id) as ticket FROM trac.ticket");
+		return access.executeScalarQuery("SELECT min(id) as ticket FROM ticket");
 	}
 	
 	/* (non-Javadoc)
@@ -60,7 +68,7 @@ public class TracDS implements Datasource {
 	 */
 	@Override
 	public Number getFirstAttachTime() {
-		return access.executeScalarQuery("SELECT min(time) as time FROM trac.attachment");
+		return access.executeScalarQuery("SELECT min(time) as time FROM attachment");
 	}
 	
 	/* (non-Javadoc)
@@ -68,7 +76,7 @@ public class TracDS implements Datasource {
 	 */
 	@Override
 	public Number getLastAttachTime() {
-		return access.executeScalarQuery("SELECT max(time) as time FROM trac.attachment");
+		return access.executeScalarQuery("SELECT max(time) as time FROM attachment");
 	}
 	
 	/* (non-Javadoc)
@@ -78,7 +86,7 @@ public class TracDS implements Datasource {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public List<TicketQueryResult> getTicketInfo(int min, int max) {
 		return (List) access.executeListBeanQuery(
-				"SELECT ticket.*, ticket_change.newvalue, ticket_change.time as modified FROM trac.ticket left join trac.ticket_change " +
+				"SELECT ticket.*, ticket_change.newvalue, ticket_change.time as modified FROM ticket left join ticket_change " +
 						"on (ticket.id = ticket_change.ticket and ticket_change.field = 'comment') " +
 						"where ticket.id >= ? and ticket.id < ? order by ticket.id, ticket.time, ticket_change.time", 
 						TicketQueryResult.class, min, max);
@@ -91,7 +99,7 @@ public class TracDS implements Datasource {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public List<TicketQueryResult> getTicketInfo(Integer id) {
 		return (List) access.executeListBeanQuery(
-				"SELECT ticket.*, ticket_change.newvalue, ticket_change.time as modified FROM trac.ticket left join trac.ticket_change " +
+				"SELECT ticket.*, ticket_change.newvalue, ticket_change.time as modified FROM ticket left join ticket_change " +
 						"on (ticket.id = ticket_change.ticket and ticket_change.field = 'comment') " +
 						"where ticket.id = ? order by ticket.id, ticket.time, ticket_change.time", 
 						TicketQueryResult.class, id);
@@ -104,7 +112,7 @@ public class TracDS implements Datasource {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public List<Integer> getChangeTicketsIds(long changetime) {
 		return (List) access.executeListScalarQuery(
-				"SELECT ticket.id from trac.ticket where changetime >= ? order by ticket.changetime", changetime / 1000);
+				"SELECT ticket.id from ticket where changetime >= ? order by ticket.changetime", changetime / 1000);
 	}
 	
 	
@@ -115,7 +123,7 @@ public class TracDS implements Datasource {
 	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public List<RecentWiki> getLastWikiUpdate() {
-		return (List) access.executeListBeanQuery("SELECT name, max(version) as version FROM trac.wiki GROUP BY name", RecentWiki.class);
+		return (List) access.executeListBeanQuery("SELECT name, max(version) as version FROM wiki GROUP BY name", RecentWiki.class);
 	}
 	
 	/* (non-Javadoc)
@@ -124,7 +132,7 @@ public class TracDS implements Datasource {
 	@Override
 	public Wiki getWiki(String name, Number version) {
 		List<Object> objects = access
-				.executeListBeanQuery("SELECT * FROM trac.wiki WHERE name = ? and version = ?", 
+				.executeListBeanQuery("SELECT * FROM wiki WHERE name = ? and version = ?", 
 				Wiki.class, name, version);
 		
 		if (objects != null && objects.size() > 0)
@@ -139,7 +147,7 @@ public class TracDS implements Datasource {
 	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public List<Attachment> getTicketAttachments(long start, long end) {
-		return (List) access.executeListBeanQuery("SELECT * FROM trac.attachment WHERE time BETWEEN ? AND ? and author = 'dfilgueiras'",
+		return (List) access.executeListBeanQuery("SELECT * FROM attachment WHERE time BETWEEN ? AND ? and author = 'dfilgueiras'",
 				Attachment.class, start, end);
 	}
 }
@@ -399,5 +407,109 @@ class PostgreSQLDB extends DBAccess {
 		Object obj = super.executeScalarQuery("select CURRENT_DATE");
 		logger.info("Connection test: {}", obj);
 		return obj != null;
+	}
+}
+
+/**
+ * @author Daniel Filgueiras
+ * @since 20/06/2011
+ */
+class SQLiteDB extends DBAccess {
+
+	private String filename;
+	private Lock lock = new ReentrantLock();
+	private final Logger logger = LoggerFactory.getLogger(getClass());
+	
+	public SQLiteDB(String filename) {
+		super("", "", "", "");
+		this.filename = filename;
+	}
+	
+	class ConnHandler implements InvocationHandler {
+		
+		private final Logger logger = LoggerFactory.getLogger(getClass());
+		private Connection connection;
+		
+		public ConnHandler(Connection connection) {
+			this.connection = connection;
+		}
+
+		@Override
+		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+			
+			Object obj = method.invoke(connection, args);
+			
+			if (method.getName().contains("close")) {
+				logger.info("Unlocking...");
+				lock.unlock();
+//				logger.info("Unlocked");
+			}
+			
+			return obj;
+		}
+		
+	}
+	
+	protected void makeDS() {
+		if (ds == null) {
+			try {
+				Class.forName("org.sqlite.JDBC");
+				ds = new javax.sql.DataSource() {
+
+					@Override
+					public PrintWriter getLogWriter() throws SQLException {
+						return null;
+					}
+
+					@Override
+					public void setLogWriter(PrintWriter out) throws SQLException {}
+
+					@Override
+					public void setLoginTimeout(int seconds) throws SQLException {}
+
+					@Override
+					public int getLoginTimeout() throws SQLException {
+						return 0;
+					}
+
+					@Override
+					public <T> T unwrap(Class<T> iface) throws SQLException {
+						return null;
+					}
+
+					@Override
+					public boolean isWrapperFor(Class<?> iface) throws SQLException {
+						return false;
+					}
+
+					@Override
+					public Connection getConnection() throws SQLException {
+						logger.info("Locking...");
+						lock.lock();
+//						logger.info("Locked");
+						return (Connection) Proxy.newProxyInstance(
+								this.getClass().getClassLoader(), new Class[]{Connection.class}, new ConnHandler(
+										DriverManager.getConnection("jdbc:sqlite:" + filename)));
+					}
+
+					@Override
+					public Connection getConnection(String username, String password) throws SQLException {
+						logger.info("Locking...");
+						lock.lock();
+						logger.info("Locked");
+						return (Connection) Proxy.newProxyInstance(
+								this.getClass().getClassLoader(), new Class[]{Connection.class}, new ConnHandler(
+										DriverManager.getConnection("jdbc:sqlite:" + filename)));
+					}
+				};
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	@Override
+	public boolean testConnection() {
+		return true;
 	}
 }

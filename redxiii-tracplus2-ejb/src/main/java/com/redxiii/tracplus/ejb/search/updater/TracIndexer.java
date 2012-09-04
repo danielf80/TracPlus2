@@ -1,6 +1,5 @@
 package com.redxiii.tracplus.ejb.search.updater;
 
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -17,11 +16,12 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.redxiii.tracplus.ejb.datasources.Datasource;
-import com.redxiii.tracplus.ejb.datasources.Mock;
 import com.redxiii.tracplus.ejb.datasources.RecentWiki;
 import com.redxiii.tracplus.ejb.util.AppConfiguration;
 import com.redxiii.tracplus.ejb.util.UsageStatistics;
@@ -30,8 +30,9 @@ import com.redxiii.tracplus.ejb.util.UsageStatistics;
 public class TracIndexer {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
+	private final DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd_HH:mm:ss");
 	
-	@Inject @Mock
+	@Inject
 	private Datasource datasource;
 	
 	@Inject 
@@ -147,7 +148,7 @@ public class TracIndexer {
 	private void requestChangedTicketIndexing(Session session, MessageProducer producer) throws JMSException {
 		
 		long lastUpdate = usageStatistics.getLastIndexUpdate();
-		logger.info("Getting changed tickets after: '{}' ...", new Date(lastUpdate));
+		logger.info("Getting changed tickets after: '{}' ...", formatter.print(lastUpdate));
 		
 		List<Integer> ticketIds = datasource.getChangeTicketsIds(lastUpdate);
 		
@@ -194,17 +195,38 @@ public class TracIndexer {
 
 		logger.info("Getting first and last attachment time...");
 		
-		final Number firstTime = datasource.getFirstAttachTime();
-		logger.info("First attachment added at: {}", firstTime);
+		/*final Number firstTime = datasource.getFirstAttachTime();
+		logger.info("First attachment added at: {}", formatter.print(firstTime.intValue()));
 		
 		final Number lastTime = datasource.getLastAttachTime();
-		logger.info("Last attachment added at: {}", lastTime);
+		logger.info("Last attachment added at: {}", formatter.print(lastTime.intValue()));
 		
 		long batchsize = 60L * 60L * 24L * 30L;	// 1 Month
 		long startTime = firstTime.longValue();
 		logger.info("Queuing requests for attachments");
 		
 		while(startTime <= lastTime.longValue()) {
+			
+			MapMessage message = session.createMapMessage();
+			message.setString("type", "attachment");
+			message.setLong("range-start", startTime);
+			message.setLong("range-end", startTime + batchsize);
+			
+			producer.send(message);
+			startTime += batchsize;
+		}*/
+		
+		final Number firstTicketId = datasource.getFirstTicketId();
+		logger.info("First ticket: {}", firstTicketId);
+		
+		final Number lastTicketId = datasource.getLastTicketId();
+		logger.info("Last ticket: {}", lastTicketId);
+		
+		long batchsize = 1L;	// 1 Month
+		long startTime = firstTicketId.longValue();
+		logger.info("Queuing requests for attachments");
+		
+		while(startTime <= lastTicketId.longValue()) {
 			
 			MapMessage message = session.createMapMessage();
 			message.setString("type", "attachment");
