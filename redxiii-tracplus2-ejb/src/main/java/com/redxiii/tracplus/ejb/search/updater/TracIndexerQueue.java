@@ -129,7 +129,7 @@ public class TracIndexerQueue implements MessageListener {
 		long rangeStart = mapMessage.getLong("range-start");
 		long rangeEnd = mapMessage.getLong("range-end");
 		List<TracStuff> stuffs = new ArrayList<TracStuff>();
-		String path = AppConfiguration.getInstance().getString("lucene.index-builder.attachments.path");
+		String path = AppConfiguration.getInstance().getString("trac.home-dir.attachments");
 		
 		logger.info("Loading attachments details between '{}' and '{}'", formatter.print(rangeStart), formatter.print(rangeEnd));
 		List<Attachment> attachments = datasource.getTicketAttachments(rangeStart, rangeEnd);

@@ -31,6 +31,11 @@ import org.slf4j.LoggerFactory;
 import com.redxiii.tracplus.ejb.entity.Attachment;
 import com.redxiii.tracplus.ejb.entity.Wiki;
 
+/**
+ * @author Daniel Filgueiras
+ * @since 04/09/2012
+ * TODO: Migrate to JPA
+ */
 @Named
 @Singleton
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)
@@ -43,7 +48,12 @@ public class TracDS implements Datasource {
 	@PostConstruct
 	public void init() {
 		logger.info("Loading database connection");
-//		access = new PostgreSQLDB("trac-db", "trac", "trac", "trac");
+		
+//		access = new PostgreSQLDB(
+//				AppConfiguration.getInstance().getString("trac.database.host"),
+//				AppConfiguration.getInstance().getString("trac.database.name"),
+//				AppConfiguration.getInstance().getString("trac.database.user"),
+//				AppConfiguration.getInstance().getString("trac.database.pass"));
 		access = new SQLiteDB("T:\\db\\trac.db");
 	}
 	
@@ -147,7 +157,7 @@ public class TracDS implements Datasource {
 	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public List<Attachment> getTicketAttachments(long start, long end) {
-		return (List) access.executeListBeanQuery("SELECT * FROM attachment WHERE time BETWEEN ? AND ? and author = 'dfilgueiras'",
+		return (List) access.executeListBeanQuery("SELECT * FROM attachment WHERE time BETWEEN ? AND ?",
 				Attachment.class, start, end);
 	}
 }

@@ -111,16 +111,21 @@ public class PrefsView implements Serializable {
 		logger.debug("Loading preferences...");
 		
 		preferences = new Preferences();
+
+		// Domain restriction
+		preferences.googleAuth = configuration.getBoolean("web.security.authentication.google", true);
+		
+		// Dummy Search Manager
+		preferences.cachedSearch = configuration.getBoolean("web.search-manager.cached", false);
+		
 		preferences.autoUpdate = configuration.getBoolean("lucene.index-builder.update", true);
 		preferences.autoUpdateWiki = configuration.getBoolean("lucene.index-builder.update.wiki", true);
 		preferences.autoUpdateTicket = configuration.getBoolean("lucene.index-builder.update.ticket", true);
 		preferences.autoUpdateAttachments = configuration.getBoolean("lucene.index-builder.update.attachments", false);
 		
-		preferences.tracAttachPaths = configuration.getString("lucene.index-builder.attachments.path","/tmp/");
-		preferences.tracWebUrl = configuration.getString("web.trac.host-url","localhost");
-		
-		preferences.cachedSearch = configuration.getBoolean("web.search-manager.cached", false);
-		preferences.googleAuth = configuration.getBoolean("web.security.authentication.google", true);
+		preferences.tracWebUrl = configuration.getString("trac.web.url","localhost");
+		preferences.tracAttachPaths = configuration.getString("trac.home-dir.attachments","/tmp/");
+		// Postgresql connection properties
 	}
 	
 	public void save() {
@@ -133,7 +138,7 @@ public class PrefsView implements Serializable {
 		configuration.setProperty("lucene.index-builder.update.ticket", preferences.autoUpdateTicket);
 		configuration.setProperty("lucene.index-builder.update.attachments", preferences.autoUpdateAttachments);
 		
-		configuration.setProperty("lucene.index-builder.attachments.path", preferences.tracAttachPaths);
+		configuration.setProperty("trac.home-dir.attachments", preferences.tracAttachPaths);
 		configuration.setProperty("web.trac.host-url", preferences.tracWebUrl);
 		
 		configuration.setProperty("web.search-manager.cached", preferences.cachedSearch);

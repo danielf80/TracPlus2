@@ -26,7 +26,7 @@ public class TracStuff {
 	private TracStuff(){}
 	
 	private static String getBaseUrl() {
-		String host = AppConfiguration.getInstance().getString("web.trac.host-url");
+		String host = AppConfiguration.getInstance().getString("trac.web.url");
 		if (host == null)
 			host = "localhost";
 		return "http://" + host + "/trac/"; 

@@ -195,7 +195,7 @@ public class TracIndexer {
 
 		logger.info("Getting first and last attachment time...");
 		
-		/*final Number firstTime = datasource.getFirstAttachTime();
+		final Number firstTime = datasource.getFirstAttachTime();
 		logger.info("First attachment added at: {}", formatter.print(firstTime.intValue()));
 		
 		final Number lastTime = datasource.getLastAttachTime();
@@ -206,27 +206,6 @@ public class TracIndexer {
 		logger.info("Queuing requests for attachments");
 		
 		while(startTime <= lastTime.longValue()) {
-			
-			MapMessage message = session.createMapMessage();
-			message.setString("type", "attachment");
-			message.setLong("range-start", startTime);
-			message.setLong("range-end", startTime + batchsize);
-			
-			producer.send(message);
-			startTime += batchsize;
-		}*/
-		
-		final Number firstTicketId = datasource.getFirstTicketId();
-		logger.info("First ticket: {}", firstTicketId);
-		
-		final Number lastTicketId = datasource.getLastTicketId();
-		logger.info("Last ticket: {}", lastTicketId);
-		
-		long batchsize = 1L;	// 1 Month
-		long startTime = firstTicketId.longValue();
-		logger.info("Queuing requests for attachments");
-		
-		while(startTime <= lastTicketId.longValue()) {
 			
 			MapMessage message = session.createMapMessage();
 			message.setString("type", "attachment");
