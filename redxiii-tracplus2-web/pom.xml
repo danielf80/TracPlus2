@@ -63,6 +63,18 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.jboss.spec.javax.annotation</groupId>
+			<artifactId>jboss-annotations-api_1.1_spec</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.jboss.spec.javax.ejb</groupId>
+			<artifactId>jboss-ejb-api_3.1_spec</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		
+		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 			<scope>provided</scope>
@@ -74,6 +86,7 @@
 			<artifactId>openid4java-full</artifactId>
 			<version>0.9.5</version>
 		</dependency>
+		
 	</dependencies>
 
 	<build>

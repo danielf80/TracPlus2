@@ -4,6 +4,9 @@ import java.io.Serializable;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.RequestScoped;
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.configuration.Configuration;
@@ -23,6 +26,9 @@ public class PrefsView implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private final Logger logger = LoggerFactory.getLogger(getClass()); 
+	
+	@Inject 
+	private AppSessionContext appCtx;
 	
 	public static class Preferences {
 		boolean autoUpdate;
@@ -130,6 +136,11 @@ public class PrefsView implements Serializable {
 	
 	public void save() {
 		Configuration configuration = AppConfiguration.getInstance();
+		
+		if (!appCtx.isSuperuser()) {
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Unauthorized user"));
+			return;
+		}
 		
 		logger.debug("Saving preferences...");
 		

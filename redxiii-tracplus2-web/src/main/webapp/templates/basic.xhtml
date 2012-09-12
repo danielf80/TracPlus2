@@ -13,15 +13,15 @@
 <h:body>
 
 	<div class="app-panel">
-		<ui:fragment rendered="#{not empty sessionContext.user}">
+		<ui:fragment rendered="#{not empty appSessionContext.user}">
 			<table style="width: 100%">
 				<tr style="width: 100%">
-					<td style="width: 250px; border: 1px solid darkslategrey;">Welcome: #{sessionContext.user.name}</td>
+					<td style="width: 250px; border: 1px solid darkslategrey;">Welcome: #{appSessionContext.user.name}</td>
 					<td align="right">
 						<h:outputLink value="#{request.contextPath}/search/search.jsf">
 							<h:graphicImage value="/resources/gfx/icon/search.png" />
 						</h:outputLink>
-						<h:outputLink value="#{request.contextPath}/preferences.jsf">
+						<h:outputLink value="#{request.contextPath}/preferences.jsf" rendered="#{appSessionContext.isSuperuser()}">
 							<h:graphicImage value="/resources/gfx/icon/show_report.png" />
 						</h:outputLink>
 					</td>

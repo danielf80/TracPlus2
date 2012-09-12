@@ -14,6 +14,7 @@ import javax.inject.Named;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.redxiii.tracplus.ejb.util.AppConfiguration;
 import com.redxiii.tracplus.ejb.util.Statistics;
 import com.redxiii.tracplus.ejb.util.UsageStatistics;
 
@@ -70,5 +71,13 @@ public class InfoView implements Serializable {
 	
 	public List<String> getWhoPerformedSearch() {
 		return new ArrayList<String>(statistics.getTodayUsers());
+	}
+	
+	public boolean isSplashEnabled() {
+		return AppConfiguration.getInstance().getBoolean("web.appearance.info.splash.enabled");
+	}
+	
+	public boolean isStatsEnabled() {
+		return AppConfiguration.getInstance().getBoolean("web.appearance.info.stats.enabled");
 	}
 }

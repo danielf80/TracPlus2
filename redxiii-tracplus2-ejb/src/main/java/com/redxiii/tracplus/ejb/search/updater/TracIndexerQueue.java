@@ -2,8 +2,11 @@ package com.redxiii.tracplus.ejb.search.updater;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.MessageDriven;
@@ -86,6 +89,22 @@ public class TracIndexerQueue implements MessageListener {
 		logger.info("Updating index with {} wiki stuffs", stuffs.size());
 		luceneIndexManager.updateIndex(stuffs);		
 	}
+	
+	private Collection<TracStuff> getWikis(List<TicketQueryResult> tickets) {
+		Map<Integer, TracStuff> stuffs = new HashMap<Integer, TracStuff>();
+		
+		for (TicketQueryResult result : tickets) {
+			TracStuff stuff = stuffs.get(result.getId());
+			if (stuff == null) {
+				stuff = new TracStuff(result);
+				stuffs.put(result.getId(), stuff);
+			} else {
+				stuff.addContent(result.getNewvalue(), result.getModified());
+			}
+		}
+		
+		return stuffs.values();
+	}
 
 	private void handleTicketMessage(MapMessage mapMessage) throws JMSException {
 		int rangeStart = mapMessage.getInt("range-start");
@@ -93,12 +112,8 @@ public class TracIndexerQueue implements MessageListener {
 		
 		logger.info("Loading tickets from '{}' to '{}'", rangeStart, rangeEnd);
 		List<TicketQueryResult> results = datasource.getTicketInfo(rangeStart, rangeEnd);
-		List<TracStuff> stuffs = new ArrayList<TracStuff>();
+		Collection<TracStuff> stuffs = getWikis(results);
 		
-		for (TicketQueryResult result : results) {
-			TracStuff stuff = new TracStuff(result);
-			stuffs.add(stuff);
-		}
 		
 		logger.info("Updating index with {} ticket stuffs", stuffs.size());
 		luceneIndexManager.updateIndex(stuffs);
@@ -114,10 +129,8 @@ public class TracIndexerQueue implements MessageListener {
 			int id = mapMessage.getInt("id-" + c);
 			
 			List<TicketQueryResult> results = datasource.getTicketInfo(id);
-			for (TicketQueryResult result : results) {
-				TracStuff stuff = new TracStuff(result);
-				stuffs.add(stuff);
-			}
+
+			stuffs.addAll(getWikis(results));
 		}
 		
 		logger.info("Updating index with {} ticket stuffs", stuffs.size());

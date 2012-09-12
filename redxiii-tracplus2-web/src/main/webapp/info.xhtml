@@ -26,6 +26,7 @@
 		</script>
 	</ui:define>
 	<ui:define name="content-header">
+		<ui:fragment rendered="#{infoView.splashEnabled}">
 		<div id="slidebox_1" class="slidebox">
 			<ul>
 				<li style="background:url(resources/gfx/splash/tracplus2-splash.png) no-repeat;">
@@ -45,6 +46,7 @@
 	        	</li>
         	</ul>
        	</div>
+		</ui:fragment>
 	</ui:define>
 	
 	<ui:define name="content">
@@ -78,6 +80,7 @@
 					</ul>
 				</td>
 				<td width="32%" class="info-panel">
+					<ui:fragment rendered="#{infoView.statsEnabled}">
 					<p style="font-size: larger; font-weight: bold;">Total number of searches</p>
 					<b>per user:</b>
 					<ul>
@@ -91,6 +94,7 @@
 							<li><b>#{stat.key}: </b>#{stat.count}</li>
 						</ui:repeat>
 					</ul>
+					</ui:fragment>
 					<p style="font-size: larger; font-weight: bold;">Analysis</p>
 					<b>Searches performed today:</b> #{infoView.todaySearchCount} / <b>Total:</b> #{infoView.searchCount}<br/>
 					<b>Speed:</b> #{infoView.averageSearchTime} seconds/search<br/>

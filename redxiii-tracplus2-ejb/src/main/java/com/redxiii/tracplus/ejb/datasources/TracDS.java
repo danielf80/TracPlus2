@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import com.redxiii.tracplus.ejb.entity.Attachment;
 import com.redxiii.tracplus.ejb.entity.Wiki;
+import com.redxiii.tracplus.ejb.util.AppConfiguration;
 
 /**
  * @author Daniel Filgueiras
@@ -49,12 +50,12 @@ public class TracDS implements Datasource {
 	public void init() {
 		logger.info("Loading database connection");
 		
-//		access = new PostgreSQLDB(
-//				AppConfiguration.getInstance().getString("trac.database.host"),
-//				AppConfiguration.getInstance().getString("trac.database.name"),
-//				AppConfiguration.getInstance().getString("trac.database.user"),
-//				AppConfiguration.getInstance().getString("trac.database.pass"));
-		access = new SQLiteDB("T:\\db\\trac.db");
+		access = new PostgreSQLDB(
+				AppConfiguration.getInstance().getString("trac.database.host"),
+				AppConfiguration.getInstance().getString("trac.database.name"),
+				AppConfiguration.getInstance().getString("trac.database.user"),
+				AppConfiguration.getInstance().getString("trac.database.pass"));
+//		access = new SQLiteDB("T:\\db\\trac.db");
 	}
 	
 	/* (non-Javadoc)

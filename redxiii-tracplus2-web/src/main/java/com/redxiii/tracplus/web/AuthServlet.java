@@ -44,18 +44,20 @@ public class AuthServlet extends HttpServlet {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	private ConsumerManager manager;
 	private String contextPath;
-
+	private String superuser;
+	
 	private User currentUser;
 	private boolean googleAuthentication;
 	private String allowedDomain;
 	
 	@Inject 
-	private SessionContext ctx;
+	private AppSessionContext appCtx;
 	
 	public AuthServlet() throws ConsumerException {
 		
 		googleAuthentication = AppConfiguration.getInstance().getBoolean("web.security.authentication.google", true);
 		allowedDomain = AppConfiguration.getInstance().getString("web.security.domain");
+		superuser = AppConfiguration.getInstance().getString("web.security.superuser","anonymous");
 		
 		if (googleAuthentication) {
 			RealmVerifier realmVerifier = new RealmVerifier(true);
@@ -88,8 +90,8 @@ public class AuthServlet extends HttpServlet {
 			currentUser.setUsername("anonymous@gmail.com");
 			currentUser.setName("anonymous");
 			
-			if (ctx != null) {
-				ctx.setUser(currentUser);
+			if (appCtx != null) {
+				appCtx.setUser(currentUser);
 				
 				logger.info("User authentication done");
 			} 
@@ -116,8 +118,8 @@ public class AuthServlet extends HttpServlet {
 					currentUser.setUsername(credentials.getEmail());
 					currentUser.setName(credentials.getEmail().split("@")[0]);
 					
-					if (ctx != null) {
-						ctx.setUser(currentUser);
+					if (appCtx != null) {
+						appCtx.setUser(currentUser);
 						
 						logger.info("User authentication done");
 					} else {
@@ -125,6 +127,10 @@ public class AuthServlet extends HttpServlet {
 					}
 					
 					redirect = request.getContextPath() + SEARCH_PAGE;
+					
+					if (superuser.equals(currentUser.getName())) {
+						appCtx.setSuperUser(true);
+					}
 				} else {
 					redirect = request.getContextPath() + LOGIN_PAGE;
 				}
@@ -136,6 +142,8 @@ public class AuthServlet extends HttpServlet {
 				throw new ServletException(e);
 			}
 		}
+		
+		
 		
 		response.sendRedirect(redirect);
 	}

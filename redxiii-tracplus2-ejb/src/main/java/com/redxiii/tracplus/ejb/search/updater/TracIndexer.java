@@ -38,6 +38,9 @@ public class TracIndexer {
 	@Inject 
 	private UsageStatistics usageStatistics;
 	
+	@Inject
+	private LuceneIndexManager luceneIndexManager;
+	
 	@Resource(mappedName="java:/ConnectionFactory")
 	private static ConnectionFactory connectionFactory;
 	
@@ -46,6 +49,8 @@ public class TracIndexer {
 	
 	@Asynchronous
 	public void completeIndexUpdate() {
+		
+		luceneIndexManager.purgeAndRecreate();
 		
 		try {
 			Connection connection = null;
@@ -139,9 +144,6 @@ public class TracIndexer {
 			producer.send(message);
 					
 			ticketId += maxFetch;
-			
-			if (ticketId > 100)
-				break;
 		}
 	}
 	
@@ -167,8 +169,6 @@ public class TracIndexer {
 	
 	private void requestWikiIndexing(Session session, MessageProducer producer) throws JMSException {
 		
-		int count = 0;
-		
 		logger.info("Getting last wiki's update...");
 		List<RecentWiki> recent = datasource.getLastWikiUpdate();
 		
@@ -184,10 +184,6 @@ public class TracIndexer {
 				message.setInt("version-" + c, wiki.getVersion().intValue());
 			}
 			producer.send(message);
-			count++;
-			
-			if (count >= 5)
-				break;
 		}
 	}
 	

@@ -35,12 +35,13 @@ public class TracStuff {
 	public TracStuff(Ticket ticket){
 		
 		this(
-				"ticket/" + ticket.getId().toString(), 						//ID
+				"ticket/" + ticket.getId().toString(), 			//ID
 				"ticket/" + ticket.getId().toString(), 			//URL
-				ticket.getReporter(), ticket.getDescription(),	//AUTHOR 
-				new Date(1000L * (Integer)ticket.getTime()), 	//CONTENT
-				1000L * (Integer)ticket.getChangetime(), 		//CREATED DATE
-				ticket.getSummary(), 							//MODIFIED DATE
+				ticket.getReporter(), 							//AUTHOR 
+				ticket.getDescription(),						//CONTENT
+				new Date(1000L * (Integer)ticket.getTime()), 	//CREATED DATE
+				1000L * (Integer)ticket.getChangetime(), 		//MODIFIED DATE
+				ticket.getSummary(), 							//DESCRIPTION
 				"ticket");										//CONTEXT
 		
 	}
@@ -65,7 +66,7 @@ public class TracStuff {
 		this.id = id;
 		this.url = getBaseUrl() + url;
 		this.author = author;
-		this.content = new StringBuilder(content);
+		this.content = new StringBuilder(description).append("\r\n ").append(content);
 		this.createdDate = createdDate;
 		this.modifiedTimestamp = modifiedTimestamp;
 		this.modifiedDate = dtFormat.format(new Date(this.modifiedTimestamp));

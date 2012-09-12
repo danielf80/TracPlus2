@@ -27,7 +27,7 @@ import com.redxiii.tracplus.ejb.search.TracStuffField;
 import com.redxiii.tracplus.ejb.search.query.QueryBuilder;
 import com.redxiii.tracplus.ejb.search.query.SimpleQuerySpec;
 import com.redxiii.tracplus.ejb.util.UsageStatistics;
-import com.redxiii.tracplus.web.SessionContext;
+import com.redxiii.tracplus.web.AppSessionContext;
 
 @Named("searchView")
 @SessionScoped
@@ -92,7 +92,7 @@ public class SearchView implements Serializable {
 	private SearchInfo searchInfo;
 	
 	@Inject
-	private SessionContext ctx;
+	private AppSessionContext ctx;
 	
 	@Inject
 	private UsageStatistics usageStatistics;
@@ -161,7 +161,7 @@ public class SearchView implements Serializable {
 				
 			default:
 			case approximate:
-				builder.addLikeRestriction(searchInfo.getSearchText(), TracStuffField.CONTENT, TracStuffField.DESCRIPTION);
+				builder.addLikeRestriction(searchInfo.getSearchText(), TracStuffField.CONTENT);
 				break;
 		}
 		
