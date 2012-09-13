@@ -38,6 +38,7 @@
 				<configuration>
 					<version>6</version>
 					<defaultLibBundleDir>lib</defaultLibBundleDir>
+					<generateApplicationXml>true</generateApplicationXml>
 					<modules>
 						<ejbModule>
 							<groupId>com.redxiii.tracplus</groupId>
