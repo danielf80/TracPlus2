@@ -25,13 +25,14 @@ public class IndexUpdaterScheduler {
 	@Schedule(hour = "22", minute = "0", second = "0")
 	public void completeUpdate() {
 		logger.info("Schedule complete update stated");
-		completeIndexUpdate();
+                if (AppConfiguration.getInstance().getBoolean("lucene.index-builder.daily", false))
+                    completeIndexUpdate();
 	}
 	
-	@Schedule(minute = "0/15", second = "0")
+	@Schedule(hour="5-21", minute = "*/15", second = "0")
 	public void incrementalUpdate() {
 		logger.info("Schedule incremental update stated");
-		if (AppConfiguration.getInstance().getBoolean("lucene.index-builder.update", false))
+		if (AppConfiguration.getInstance().getBoolean("lucene.index-builder.update.only_new", false))
 			tracIndexer.incrementalIndexUpdate();
 	}
 	
@@ -41,13 +42,13 @@ public class IndexUpdaterScheduler {
 		BasicConfigurator.configure();
 		logger = LoggerFactory.getLogger(getClass());
 		logger.info("App Started");
-		completeIndexUpdate();
+                if (AppConfiguration.getInstance().getBoolean("lucene.index-builder.update.at_startup", false))
+                    completeIndexUpdate();
 	}
 
 	public void completeIndexUpdate() {
 		
-		if (AppConfiguration.getInstance().getBoolean("lucene.index-builder.update", false))
-			tracIndexer.completeIndexUpdate();
+		tracIndexer.completeIndexUpdate();
 		
 	}
 }

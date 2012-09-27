@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	template="/app/templates/tracplus_v2.xhtml">
+	
+	<ui:define name="content-header">
+		<script type='text/javascript'>
+			$(function() {
+		    	$('#searchAction-default-div').tipsy();
+		    	$('#searchAction-precise-div').tipsy();
+		    	$('#searchAction-advanced-div').tipsy();
+		  	});
+		</script>
+
+		<h:form id="searchForm">
+		<table style="width: 100px;">
+			<tr>
+				<td style="width: 100%; padding-right: 15px;">
+					<h:inputText styleClass="tracplus-input-text" id="searchText" value="#{searchInfo.searchText}" />
+				</td>
+				<td>
+					<div class="search-btn-div-default" id="searchAction-default-div" title="#{msg['page.search.help.approximate-search']}">
+						<h:commandButton value="#{msg['common.search']}" action="#{searchView.doSearch('smart')}" styleClass="search-btn-default"/>		
+					</div>
+				</td>
+				<td>
+					<div class="search-btn-div-mini" id="searchAction-advanced-div" title="#{msg['page.search.help.advanced-search']}">
+						<div style="width: 25px; margin-left: 10px;">
+							<h:commandButton 
+								action="#{searchView.doSearch('advanced')}" 
+								styleClass="search-btn-advanced"
+								image="/resources/gfx/lucene-search.png"/>
+						</div>
+					</div>
+				</td>
+			</tr>
+		</table>
+		<table>
+			<tr>
+				<td>#{msg['page.search.filter-by-type']}:</td>
+				<td>
+					<h:selectOneRadio value="#{searchView.selectedFilterType}" layout="lineDirection">
+						<f:selectItems value="#{searchView.filterTypeSelections}" var="item" itemValue="#{item}" itemLabel="#{item}"/>
+					</h:selectOneRadio>
+				</td>
+			</tr>
+		</table>
+		<table>
+			<tr>
+				<td>
+					<label for="filter-period-option">#{msg['page.search.filter-by-period']}:</label>
+				</td>
+				<td>
+					<h:selectOneMenu id="filter-period-option" value="#{searchView.selectedFilterPeriod}">
+						<f:selectItems value="#{searchView.filterPeriodSelections}" var="item" itemValue="#{item}" itemLabel="#{i18n.getEnum(item)}"/>
+					</h:selectOneMenu>
+				</td>
+				<td>
+					<label for="sortby-option">Ordernar por:</label>
+				</td>
+				<td>
+					<h:selectOneMenu id="sortby-option" value="#{searchView.selectedSort}">
+						<f:selectItems value="#{searchView.sortSelections}" var="item" itemValue="#{item}" itemLabel="#{i18n.getEnum(item)}"/>
+					</h:selectOneMenu>
+				</td>
+			</tr>
+		</table>
+		
+		</h:form>
+	</ui:define>
+	
+	<ui:define name="content">
+		<div class="search-result-panel">
+		
+		<ui:fragment rendered="#{not empty searchInfo.interpretedQuery}">
+			<h:outputText value="#{i18n.getWithArgs('page.search.result-count', searchView.results.size(), searchInfo.elapsedTime)}" 
+				style="font-size: smaller; color: #4D90FE;"/><br/>		
+			<h:outputText style="font-size: smaller; color: lightgray;" 
+				value="#{i18n.getWithArgs('page.search.interpreted-term', searchInfo.interpretedQuery)}" />
+		</ui:fragment>
+		<br/>		
+		<ui:repeat value="#{searchView.results}" var="result" rendered="#{not empty searchView.results}">
+			<div style="padding-bottom: 2px;">
+				<table>
+					<tr>
+						<td rowspan="2" style="padding: 5px; width: 20px;">
+							<h:graphicImage value="/resources/gfx/#{searchView.getResultImage(result)}.png" />
+						</td>
+						<td>
+							<a href="#{result.url}" style="font-size: 14px;"><h:outputText value="#{result.description}" /></a>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<span style="font-size: 10px; color: green">
+								<b>(#{result.score})</b>: #{result.url} by <b>#{result.author}</b>, modified at <b>#{result.modifiedDate}</b>
+							</span>
+						</td>
+					</tr>
+				</table>
+				
+			</div>			
+		</ui:repeat>
+		</div>
+	</ui:define>
+</ui:composition>

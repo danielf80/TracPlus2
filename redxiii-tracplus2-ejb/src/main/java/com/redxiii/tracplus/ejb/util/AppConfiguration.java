@@ -35,7 +35,7 @@ public class AppConfiguration {
 	
 	private AppConfiguration() {
 		
-		String url = getServerConfigFolder() + "tracplus.properties";
+		String url = getServerConfigFolder() + "tracplus2.properties";
 		logger.debug("Loading Configuration file ({}): '{}'", INSTANCE_ID.getAndIncrement(), url);
 		try {
 			configuration = new PropertiesConfiguration(url);
