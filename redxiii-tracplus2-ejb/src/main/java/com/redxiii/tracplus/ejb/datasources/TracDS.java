@@ -1,17 +1,25 @@
 package com.redxiii.tracplus.ejb.datasources;
 
-import com.redxiii.tracplus.ejb.entity.Attachment;
-import com.redxiii.tracplus.ejb.entity.Wiki;
-import com.redxiii.tracplus.ejb.util.AppConfiguration;
+import java.io.PrintWriter;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 import javax.annotation.PostConstruct;
+import javax.ejb.ConcurrencyManagement;
+import javax.ejb.ConcurrencyManagementType;
+import javax.ejb.Singleton;
 import javax.inject.Named;
 import javax.sql.DataSource;
+
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
 import org.apache.commons.dbutils.handlers.ColumnListHandler;
@@ -20,12 +28,18 @@ import org.apache.commons.dbutils.handlers.ScalarHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.redxiii.tracplus.ejb.entity.Attachment;
+import com.redxiii.tracplus.ejb.entity.Wiki;
+import com.redxiii.tracplus.ejb.util.AppConfiguration;
+
 /**
  * @author Daniel Filgueiras
  * @since 04/09/2012
  * TODO: Migrate to JPA
  */
 @Named
+@Singleton
+@ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 public class TracDS implements Datasource {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -108,10 +122,8 @@ public class TracDS implements Datasource {
 	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public List<Integer> getChangeTicketsIds(long changetime) {
-            long datetime = changetime / 1000L;
-            logger.debug("Loading changed tickets after: {} = {}", new Date(changetime), datetime);
-            return (List) access.executeListScalarQuery(
-            "SELECT ticket.id from ticket where changetime >= ? order by ticket.changetime", datetime);
+		return (List) access.executeListScalarQuery(
+				"SELECT ticket.id from ticket where changetime >= ? order by ticket.changetime", changetime / 1000);
 	}
 	
 	
@@ -406,5 +418,109 @@ class PostgreSQLDB extends DBAccess {
 		Object obj = super.executeScalarQuery("select CURRENT_DATE");
 		logger.info("Connection test: {}", obj);
 		return obj != null;
+	}
+}
+
+/**
+ * @author Daniel Filgueiras
+ * @since 20/06/2011
+ */
+class SQLiteDB extends DBAccess {
+
+	private String filename;
+	private Lock lock = new ReentrantLock();
+	private final Logger logger = LoggerFactory.getLogger(getClass());
+	
+	public SQLiteDB(String filename) {
+		super("", "", "", "");
+		this.filename = filename;
+	}
+	
+	class ConnHandler implements InvocationHandler {
+		
+		private final Logger logger = LoggerFactory.getLogger(getClass());
+		private Connection connection;
+		
+		public ConnHandler(Connection connection) {
+			this.connection = connection;
+		}
+
+		@Override
+		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+			
+			Object obj = method.invoke(connection, args);
+			
+			if (method.getName().contains("close")) {
+				logger.info("Unlocking...");
+				lock.unlock();
+//				logger.info("Unlocked");
+			}
+			
+			return obj;
+		}
+		
+	}
+	
+	protected void makeDS() {
+		if (ds == null) {
+			try {
+				Class.forName("org.sqlite.JDBC");
+				ds = new javax.sql.DataSource() {
+
+					@Override
+					public PrintWriter getLogWriter() throws SQLException {
+						return null;
+					}
+
+					@Override
+					public void setLogWriter(PrintWriter out) throws SQLException {}
+
+					@Override
+					public void setLoginTimeout(int seconds) throws SQLException {}
+
+					@Override
+					public int getLoginTimeout() throws SQLException {
+						return 0;
+					}
+
+					@Override
+					public <T> T unwrap(Class<T> iface) throws SQLException {
+						return null;
+					}
+
+					@Override
+					public boolean isWrapperFor(Class<?> iface) throws SQLException {
+						return false;
+					}
+
+					@Override
+					public Connection getConnection() throws SQLException {
+						logger.info("Locking...");
+						lock.lock();
+//						logger.info("Locked");
+						return (Connection) Proxy.newProxyInstance(
+								this.getClass().getClassLoader(), new Class[]{Connection.class}, new ConnHandler(
+										DriverManager.getConnection("jdbc:sqlite:" + filename)));
+					}
+
+					@Override
+					public Connection getConnection(String username, String password) throws SQLException {
+						logger.info("Locking...");
+						lock.lock();
+						logger.info("Locked");
+						return (Connection) Proxy.newProxyInstance(
+								this.getClass().getClassLoader(), new Class[]{Connection.class}, new ConnHandler(
+										DriverManager.getConnection("jdbc:sqlite:" + filename)));
+					}
+				};
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	@Override
+	public boolean testConnection() {
+		return true;
 	}
 }

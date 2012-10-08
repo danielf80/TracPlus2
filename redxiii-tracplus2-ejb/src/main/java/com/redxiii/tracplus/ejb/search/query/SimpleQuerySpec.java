@@ -1,7 +1,8 @@
 package com.redxiii.tracplus.ejb.search.query;
 
-import com.redxiii.tracplus.ejb.search.TracStuffField;
 import java.util.Set;
+
+import com.redxiii.tracplus.ejb.search.TracStuffField;
 
 
 

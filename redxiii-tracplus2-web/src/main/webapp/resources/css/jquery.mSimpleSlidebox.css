@@ -31,7 +31,7 @@ Slidebox jQuery banner rotator and image slideshow plugin styling
 .slideboxContainer #slidebox_1+.slideboxThumbs .slideboxThumb{border-radius:10px; background:#ccc; box-shadow:inset 0 0 5px rgba(0,0,0,0.3);}
 .slideboxContainer #slidebox_1+.slideboxThumbs .slideboxThumb:hover,.slideboxContainer #slidebox_1+.slideboxThumbs .selectedSlideboxThumb{background:#fff; box-shadow:inset 0 0 4px rgba(0,0,0,0.2),0 0 2px rgba(0,0,0,0.2);}
 .slideboxContainer #slidebox_1+.slideboxThumbs .slideboxThumb:active{background:#eee;}
-.slideboxContainer #slidebox_1~.slideboxNext,.slideboxContainer #slidebox_1~.slideboxPrevious{width:30px; height:30px; border-radius:21px; margin:-35px 0 0 0; background-color:#ccc; background-image:url('../../resources/gfx/slidebox_icons.png'); background-repeat:no-repeat; background-position:0px 0px; box-shadow:inset 0 0 10px rgba(0,0,0,0.2);}
+.slideboxContainer #slidebox_1~.slideboxNext,.slideboxContainer #slidebox_1~.slideboxPrevious{width:30px; height:30px; border-radius:21px; margin:-35px 0 0 0; background-color:#ccc; background-image:url(slidebox_icons.png); background-repeat:no-repeat; background-position:0px 0px; box-shadow:inset 0 0 10px rgba(0,0,0,0.2);}
 .slideboxContainer #slidebox_1~.slideboxNext{background-position:-30px 0px;}
 .slideboxContainer #slidebox_1~.slideboxPrevious:hover,.slideboxContainer #slidebox_1~.slideboxNext:hover{background-color:#fff; background-position:0px -30px; box-shadow:inset 0 0 10px rgba(0,0,0,0.2),0 0 3px rgba(0,0,0,0.2);}
 .slideboxContainer #slidebox_1~.slideboxNext:hover{background-position:-30px -30px;}

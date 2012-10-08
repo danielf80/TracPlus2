@@ -105,8 +105,7 @@ public class TracIndexer {
 				if (AppConfiguration.getInstance().getBoolean("lucene.index-builder.update.ticket", false)) {
 					requestChangedTicketIndexing(session, producer);
 				}
-				usageStatistics.setLastIndexUpdate(System.currentTimeMillis());
-                                
+				
 			} catch (JMSException e) {
 				logger.error("JMS error on message creation", e);
 			} catch (Throwable e) {
@@ -133,8 +132,7 @@ public class TracIndexer {
 		final Number lastTicketId = datasource.getLastTicketId();
 		logger.info("Last ticket: {}", lastTicketId);
 		
-		int ticketId = firstTicketId.intValue();
-                int maxFetch = AppConfiguration.getInstance().getInt("lucene.index-builder.batch-size.ticket", 25);
+		int ticketId = firstTicketId.intValue(), maxFetch = 25;
 		logger.info("Queuing requests for {} ticket's", lastTicketId.intValue() - firstTicketId.intValue());
 		
 		while (ticketId <= lastTicketId.intValue()) {
@@ -155,13 +153,12 @@ public class TracIndexer {
 		logger.info("Getting changed tickets after: '{}' ...", formatter.print(lastUpdate));
 		
 		List<Integer> ticketIds = datasource.getChangeTicketsIds(lastUpdate);
-		int maxFetch = AppConfiguration.getInstance().getInt("lucene.index-builder.batch-size.ticket", 25);
-                
+		
 		Iterator<Integer> iterator = ticketIds.iterator();
 		while (iterator.hasNext()) {
 			MapMessage message = session.createMapMessage();
 			message.setString("type", "ticket-upd");
-			for (int c = 0; c < maxFetch && iterator.hasNext(); c++) {
+			for (int c = 0; c < 25 && iterator.hasNext(); c++) {
 				Integer ticketid = iterator.next();
 				message.setInt("size", c+1);
 				message.setInt("id-" + c, ticketid);
@@ -172,8 +169,6 @@ public class TracIndexer {
 	
 	private void requestWikiIndexing(Session session, MessageProducer producer) throws JMSException {
 		
-                int maxFetch = AppConfiguration.getInstance().getInt("lucene.index-builder.batch-size.wiki", 25);
-                    
 		logger.info("Getting last wiki's update...");
 		List<RecentWiki> recent = datasource.getLastWikiUpdate();
 		
@@ -182,7 +177,7 @@ public class TracIndexer {
 		while (iterator.hasNext()) {
 			MapMessage message = session.createMapMessage();
 			message.setString("type", "wiki");
-			for (int c = 0; c < maxFetch && iterator.hasNext(); c++) {
+			for (int c = 0; c < 25 && iterator.hasNext(); c++) {
 				RecentWiki wiki = iterator.next();
 				message.setInt("size", c+1);
 				message.setString("name-" + c, wiki.getName());
@@ -202,7 +197,7 @@ public class TracIndexer {
 		final Number lastTime = datasource.getLastAttachTime();
 		logger.info("Last attachment added at: {}", formatter.print(lastTime.intValue()));
 		
-		long batchsize = 60L * 60L * AppConfiguration.getInstance().getLong("lucene.index-builder.batch-size.attachments", 720);	// 1 Month
+		long batchsize = 60L * 60L * 24L * 30L;	// 1 Month
 		long startTime = firstTime.longValue();
 		logger.info("Queuing requests for attachments");
 		

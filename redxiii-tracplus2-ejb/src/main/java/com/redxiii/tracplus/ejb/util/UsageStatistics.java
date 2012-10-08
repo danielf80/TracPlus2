@@ -1,8 +1,5 @@
 package com.redxiii.tracplus.ejb.util;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -10,9 +7,11 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
+
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.FileConfiguration;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -20,6 +19,10 @@ import org.apache.commons.configuration.reloading.FileChangedReloadingStrategy;
 import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 
 /**
  * @author Daniel Filgueiras
@@ -35,14 +38,13 @@ public class UsageStatistics {
 	
 	private FileConfiguration configuration;
 	
-	private long lastIndexUpdate = System.currentTimeMillis();  //TODO: BUG Detected
+	private long lastIndexUpdate;
 	
 	private LoadingCache<LocalDate, Statistics> statisticsCache;
 	
 	@PostConstruct
 	public void init() {
 	
-                lastIndexUpdate = AppConfiguration.getInstance().getLong("lucene.index-builder.last-update", 0);
 		File statsFile = new File(AppConfiguration.getServerConfigFolder() + "tracplus2-stats.properties");
 		try {
 			if (statsFile.exists() || statsFile.createNewFile()) {
@@ -71,7 +73,7 @@ public class UsageStatistics {
 						logger.info("Loading statistics from file...");
 						
 						Statistics statistics = new Statistics();
-						statistics.setSearchCount(configuration.getInt("stats.query-count.all", 0));
+						statistics.setSearchCount(configuration.getInt("stats.query-count.all"));
 						
 						final String tagUser = "stats.query-count.user";
 						Iterator<String> iterator = configuration.getKeys(tagUser);
@@ -124,7 +126,6 @@ public class UsageStatistics {
 	}
 	
 	public void setLastIndexUpdate(long lastIndexUpdate) {
-                AppConfiguration.getInstance().setProperty("lucene.index-builder.last-update", lastIndexUpdate);
 		this.lastIndexUpdate = lastIndexUpdate;
 	}
 }
