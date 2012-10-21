@@ -7,6 +7,19 @@ body {
 	color: #363636;
 }
 
+table {
+        border-spacing: 0px;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+img {
+    border: 0px;
+}
+
 select {
 	font-family: inherit;
 	font-size: inherit;
@@ -16,77 +29,6 @@ select {
 	background-color: #2D2D2D;
 	color: whiteSmoke;
 	font-weight: bold;
-}
-
-.search-main-panel {
-	background-color: #EFEFEF;
-}
-
-.search-result-panel {
-	padding: 15px;
-}
-
-.tracplus-input-text {
-	font-family: inherit;
-	font-size: 12px;
-	height: 20px;
-	width: 500px;
-	text-indent: 3px;
-}
-
-.search-btn-div-default {
-	height: 22px;
-	width: 85px;
-	background-color: #4D90FE;
-	border: 1px solid #3079ED;
-	border-collapse: separate;
-	border-spacing: 2px; 
-}
-
-.search-btn-div-mini {
-	margin-left: 10px;
-	height: 22px;
-	width: 45px;
-	background-color: #4D90FE;
-	border: 1px solid #3079ED;
-	border-collapse: separate;
-	border-spacing: 2px; 
-}
-
-.search-btn-default {
-	font-family: inherit;
-	font-weight: bold;
-	color: white;
-	height: 22px;
-	width: 100%;
-	background: transparent;
-	border: 0;
-	position: relative;
-	overflow: hidden;
-}
-
-.search-btn-precise {
-	font-family: inherit;
-	font-weight: bold;
-	color: white;
-	height: 22px;
-	width: 100%;
-	background: transparent;
-	border: 0;
-	position: relative;
-	overflow: hidden;
-}
-
-.search-btn-advanced {
-	font-family: inherit;
-	font-weight: bold;
-	color: white;
-	height: 22px;
-	width: 100%;
-	background: transparent;
-	border: 0;
-	position: relative;
-	overflow: hidden;
 }
 
 .info-stats-panel {

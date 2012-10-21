@@ -17,37 +17,49 @@ import com.redxiii.tracplus.ejb.util.AppConfiguration;
 @Startup
 public class IndexUpdaterScheduler {
 
-	private Logger logger;
-	
-	@EJB
-	private TracIndexer tracIndexer;
-	
-	@Schedule(hour = "22", minute = "0", second = "0")
-	public void completeUpdate() {
-		logger.info("Schedule complete update stated");
-		completeIndexUpdate();
-	}
-	
-	@Schedule(minute = "0/15", second = "0")
-	public void incrementalUpdate() {
-		logger.info("Schedule incremental update stated");
-		if (AppConfiguration.getInstance().getBoolean("lucene.index-builder.update", false))
-			tracIndexer.incrementalIndexUpdate();
-	}
-	
-	@PostConstruct
-	public void init() {
-		
-		BasicConfigurator.configure();
-		logger = LoggerFactory.getLogger(getClass());
-		logger.info("App Started");
-		completeIndexUpdate();
-	}
+    private Logger logger;
+    @EJB
+    private TracIndexer tracIndexer;
 
-	public void completeIndexUpdate() {
-		
-		if (AppConfiguration.getInstance().getBoolean("lucene.index-builder.update", false))
-			tracIndexer.completeIndexUpdate();
-		
-	}
+    @Schedule(hour = "22", minute = "0", second = "0")
+    public void completeUpdate() {
+
+        if (AppConfiguration.getInstance().getBoolean("lucene.index-builder.update.daily", false)) {
+            logger.info("Complete index update - Started");
+            completeIndexUpdate();
+        } else {
+            logger.warn("Complete index update disabled");
+        }
+    }
+
+    @Schedule(hour = "5-21", minute = "*/15", second = "0")
+    public void incrementalUpdate() {
+
+        if (AppConfiguration.getInstance().getBoolean("lucene.index-builder.update.incremental", false)) {
+            logger.info("Incremental index update started");
+            tracIndexer.incrementalIndexUpdate();
+        } else {
+            logger.warn("Incremental index update disabled");
+        }
+    }
+
+    @PostConstruct
+    public void init() {
+
+        BasicConfigurator.configure();
+        logger = LoggerFactory.getLogger(getClass());
+        logger.info("App Started");
+
+        if (AppConfiguration.getInstance().getBoolean("lucene.index-builder.update.at_startup", false)) {
+            logger.info("Started index update at system startup");
+            completeIndexUpdate();
+        } else {
+            logger.info("Index update at system startup disabled");
+        }
+    }
+
+    public void completeIndexUpdate() {
+        tracIndexer.completeIndexUpdate();
+
+    }
 }

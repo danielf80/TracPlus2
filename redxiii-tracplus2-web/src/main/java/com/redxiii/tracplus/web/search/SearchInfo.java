@@ -19,6 +19,11 @@ public class SearchInfo implements Serializable {
 	private String interpretedQuery;
 	private String elapsedTime;
 	
+        public SearchInfo(){}
+        public SearchInfo(String text) {
+            this.searchText = text;
+        }
+        
 	public String getSearchText() {
 		return searchText;
 	}
@@ -33,15 +38,17 @@ public class SearchInfo implements Serializable {
 		this.interpretedQuery = interpretedQuery;
 	}
 	
-	@Override
-	public String toString() {
-		return "SearchInfo [searchText=" + searchText + "]";
-	}
+	
 	
 	public String getElapsedTime() {
 		return elapsedTime;
 	}
 	public void setElapsedTime(String elapsedTime) {
 		this.elapsedTime = elapsedTime;
+	}
+        
+        @Override
+	public String toString() {
+		return "SearchInfo [searchText=" + searchText + "]";
 	}
 }

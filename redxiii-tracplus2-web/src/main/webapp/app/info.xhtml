@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	template="/app/templates/tracplus_v2.xhtml">
+	
+	<ui:define name="head">
+		<!-- slidebox styling via external css -->
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js"></script>
+		<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+		<h:outputStylesheet name="css/jquery.mSimpleSlidebox.css" />
+                <h:outputScript name="js/jquery.mSimpleSlidebox.js" />
+		
+                <!-- slidebox function call -->
+		<script type="text/javascript">
+		$(document).ready(function(){
+			$("#slidebox_1").mSlidebox({
+				controlsPosition:{
+					buttonsPosition:"outside",
+					thumbsPosition:"outside"
+				}
+			});
+		});
+		</script>
+	</ui:define>
+    
+        <ui:define name="app-panel-links">
+            <h:outputLink value="#{request.contextPath}/app/search/search.jsf">
+                    <h:graphicImage value="/resources/gfx/icon/search.png" />
+            </h:outputLink>
+        </ui:define>
+    
+	<ui:define name="content-header">
+		<ui:fragment rendered="#{infoView.splashEnabled}">
+		<div id="slidebox_1" class="slidebox">
+			<ul>
+                        <li style="#{imageRef.splashUrl}">
+	        		<a href="https://github.com/danielf80/TracPlus2" title="TracPlus 2"><span>TracPlus 2</span></a>
+	        	</li>
+	        	<li style="background:url(../resources/gfx/splash/lucene-splash.png) no-repeat;">
+	        		<a href="http://lucene.apache.org/core/" title="Apache Lucene"><span>Apache Lucene</span></a>
+	        	</li>
+	    		<li style="background:url(../resources/gfx/splash/jbossas7-splash.png) no-repeat;">
+	        		<a href="http://www.jboss.org/as7" title="JBoss 7 AS"></a>
+	        	</li>
+	        	<li style="background:url(../resources/gfx/splash/glassfish3-splash.png) no-repeat;">
+	        		<a href="http://glassfish.java.net/" title="Glassfish 3"><span>Glassfish</span></a>
+	        	</li>
+	        	<li style="background:url(../resources/gfx/splash/other-splash.png) no-repeat;">
+	        		<a href="#" title="Others"></a>
+	        	</li>
+        	</ul>
+       	</div>
+		</ui:fragment>
+	</ui:define>
+	
+	<ui:define name="content">
+		<table style="width: 100%; height: 50px; font-size: smaller; padding: 20px;">
+			<tr>
+				<td width="48%" class="info-panel">
+					<b style="font-size: larger;">Highlights</b><br/>
+				
+					<ul>
+						<li>Rewritten for Java EE 6 and running on JBoss 7</li>
+						<li>Technologies: JSF 2.x, CDI 1.x, JPA 2.x</li>
+					</ul>
+					
+					<b style="font-size: larger;">Release notes</b><br/>
+					
+					<ul>
+						<li>Improved search capabilities</li>
+						<li>Indexing of some types of attachments: PDF</li>
+						<li>Improved indexing performance</li>
+						<li>Periodically index update</li>
+						<li>Internationalization</li>
+                                                <li>New filter options</li>
+					</ul>
+					
+					<b style="font-size: larger;">Next steps</b><br/>
+					
+					<ul>
+						<li>User preferences page</li>
+						<li>System configuration page</li>
+						<li>Help documentation</li>
+					</ul>
+				</td>
+				<td width="4%"/>
+				<td width="48%" class="info-panel">
+					<b style="font-size: larger;">App build information</b><br/>
+				
+					<ul>
+						<ui:repeat value="#{manifestReader.keys}" var="item">
+							<li><b>#{item}: </b>#{manifestReader.properties[item]}</li>
+						</ui:repeat>
+					</ul>
+				</td>
+			</tr>
+		</table>
+                <table style="width: 100%; height: 50px; font-size: smaller; padding: 20px;">
+                    <tr>
+                        <td class="info-panel" style="width: 32%">
+                            <p style="font-size: larger; font-weight: bold;">Total number of searches</p>
+                            <b>per user:</b>
+                            <ul>
+                                    <ui:repeat value="#{infoView.usersStats}" var="stat">
+                                            <li><b>#{stat.key}: </b>#{stat.count}</li>
+                                    </ui:repeat>
+                            </ul>
+                        </td>
+                        <td width="2%"/>
+                        <td class="info-panel" style="width: 32%">
+                            <p style="font-size: larger; font-weight: bold;">Total number of searches</p>
+                            <b>per period:</b>
+                            <ul>	
+                                    <ui:repeat value="#{infoView.periodStats}" var="stat">
+                                            <li><b>#{stat.key}: </b>#{stat.count}</li>
+                                    </ui:repeat>
+                            </ul>
+                        </td>
+                        <td width="2%"/>
+                        <td class="info-panel" style="width: 32%">
+                            <p style="font-size: larger; font-weight: bold;">Analysis</p>
+                            <b>Searches performed today:</b> #{infoView.todaySearchCount} / <b>Total:</b> #{infoView.searchCount}<br/>
+                            <b>Speed:</b> #{infoView.averageSearchTime} seconds/search<br/>
+                            <b>Searches performed today by:</b> #{infoView.whoPerformedSearch}
+                        </td>
+                    </tr>
+                </table>
+	</ui:define>
+</ui:composition>

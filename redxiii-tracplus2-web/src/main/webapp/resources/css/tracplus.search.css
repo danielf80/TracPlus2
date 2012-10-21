@@ -1,23 +1,3 @@
-/* Core styles for the page */
-body {
-	margin: 0;
-	padding: 0;
-	font-family: "Lucida Sans Unicode", "Calibri", sans-serif;
-	font-size: 0.8em;
-	color: #363636;
-}
-
-select {
-	font-family: inherit;
-	font-size: inherit;
-}
-
-.app-panel {
-	background-color: #2D2D2D;
-	color: whiteSmoke;
-	font-weight: bold;
-}
-
 .search-main-panel {
 	background-color: #EFEFEF;
 }
@@ -26,7 +6,7 @@ select {
 	padding: 15px;
 }
 
-.tracplus-input-text {
+.search-input-text {
 	font-family: inherit;
 	font-size: 12px;
 	height: 20px;
@@ -89,14 +69,11 @@ select {
 	overflow: hidden;
 }
 
-.info-stats-panel {
-	border: 2px solid lightSteelBlue;
-	margin: 15px;
-	padding: 15px;
+.search-trac-link {
+    font-size: 14px;
+    color: darkred;
 }
 
-.info-panel {
-	border: 2px solid lightSteelBlue;
-	margin: 15px;
-	padding: 15px;
+.search-table-options {
+    border-spacing: 1px;
 }

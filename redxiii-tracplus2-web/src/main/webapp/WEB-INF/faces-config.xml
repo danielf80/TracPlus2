@@ -13,10 +13,12 @@
 	<application>
 		<locale-config>
 			<default-locale>pt_BR</default-locale>
+                        <supported-locale>en</supported-locale>
 		</locale-config>
 		<resource-bundle>
 			<base-name>com.redxiii.tracplus.messages</base-name>
 			<var>msg</var>
 		</resource-bundle>
+                
 	</application>
 </faces-config>

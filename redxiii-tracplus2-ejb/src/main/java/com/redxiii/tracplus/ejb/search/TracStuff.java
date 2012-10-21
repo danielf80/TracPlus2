@@ -21,6 +21,7 @@ public class TracStuff {
 	private String description;
 	private String tags = "";
 	private String context = "";
+        private String cc = "";
 	private long modifiedTimestamp;
 	
 	private TracStuff(){}
@@ -43,7 +44,7 @@ public class TracStuff {
 				1000L * (Integer)ticket.getChangetime(), 		//MODIFIED DATE
 				ticket.getSummary(), 							//DESCRIPTION
 				"ticket");										//CONTEXT
-		
+                this.cc = ticket.getCc() + "," + ticket.getOwner() + "," + ticket.getReporter();
 	}
 	
 	public TracStuff(Wiki wiki) {
@@ -74,39 +75,6 @@ public class TracStuff {
 		this.context = context;
 	}
 
-	public static TracStuff createInstanceWiki(Map<String, Object> dbTuple) {
-		
-		TracStuff stuff = new TracStuff();
-		stuff.id = dbTuple.get("name").toString();
-		stuff.url = getBaseUrl() + "wiki/" + dbTuple.get("name").toString();
-		stuff.author = dbTuple.get("author").toString();
-		stuff.content = new StringBuilder(dbTuple.get("text").toString());
-		stuff.createdDate = new Date(1000L * (Integer)dbTuple.get("time"));
-		stuff.modifiedTimestamp = 1000L * (Integer)dbTuple.get("time");
-		stuff.modifiedDate = dtFormat.format(new Date(stuff.modifiedTimestamp));
-		stuff.description = dbTuple.get("name").toString();
-		stuff.context = "wiki";
-		
-		return stuff;
-	}
-	
-	public static TracStuff createInstanceTicket(Map<String, Object> dbTuple) {
-		
-		TracStuff stuff = new TracStuff();
-		stuff.id = dbTuple.get("id").toString();
-		stuff.url = getBaseUrl() + "ticket/" + dbTuple.get("id").toString();
-		stuff.author = dbTuple.get("reporter").toString();
-		stuff.content = new StringBuilder(dbTuple.get("description").toString());
-		stuff.createdDate = new Date(1000L * (Integer)dbTuple.get("time"));
-		stuff.modifiedTimestamp = 1000L * (Integer)dbTuple.get("changetime");
-		stuff.modifiedDate = dtFormat.format(new Date(stuff.modifiedTimestamp));
-		stuff.description = dbTuple.get("summary").toString();
-		stuff.context = "ticket";
-		stuff.tags = (dbTuple.get("keywords") != null ? dbTuple.get("keywords").toString() : "");
-		
-		return stuff;
-	}
-	
 	public String getId() {
 		return id;
 	}
@@ -156,5 +124,9 @@ public class TracStuff {
 	public String getContext() {
 		return context;
 	}
+
+    public String getCc() {
+        return cc;
+    }
 
 }

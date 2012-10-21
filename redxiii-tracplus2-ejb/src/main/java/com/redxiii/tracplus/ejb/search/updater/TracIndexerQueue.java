@@ -36,7 +36,8 @@ import com.redxiii.tracplus.ejb.util.PDFExtraction;
 @MessageDriven(mappedName = "TracplusQueue", activationConfig = {
 		@ActivationConfigProperty(propertyName = "acknowledgeMode", propertyValue = "Auto-acknowledge"),
 		@ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
-		@ActivationConfigProperty(propertyName = "destination", propertyValue = "queue.com.redxiii.tracplus2")
+		@ActivationConfigProperty(propertyName = "destination", propertyValue = "queue.com.redxiii.tracplus2"),
+                @ActivationConfigProperty(propertyName = "maxSession", propertyValue = "1")
 })
 public class TracIndexerQueue implements MessageListener {
 
@@ -149,15 +150,19 @@ public class TracIndexerQueue implements MessageListener {
 		
 		logger.info("Handling '{}' attachments", attachments.size());
 		for (Attachment attachment : attachments) {
-			if (attachment.getFilename().endsWith(".pdf")) {
+			
 				logger.trace("Reading '{}'", attachment.getFilename());
 				
+                                String id = attachment.getType() + "/" + attachment.getId() + "/" + attachment.getFilename();
+                                
 				try {
-					String attachmentText = PDFExtraction.extract(path + "/" + attachment.getType() + "/" + attachment.getId(), attachment.getFilename());
+                                    if (attachment.getFilename().endsWith(".pdf")) {
+//					String attachmentText = PDFExtraction.extract(path + "/" + attachment.getType() + "/" + attachment.getId(), attachment.getFilename());
+                                    }
+                                        String attachmentText = attachment.getFullDescription();
 					
 					if (attachmentText != null && attachmentText.length() > 0) {
 						
-						String id = attachment.getType() + "/" + attachment.getId() + "/" + attachment.getFilename();
 						stuffs.add(new TracStuff(
 								id, 
 								"attachment/" + id, 
@@ -167,13 +172,9 @@ public class TracIndexerQueue implements MessageListener {
 								attachment.getTime() * 1000L,
 								attachment.getFullDescription(), "attachment"));
 					}
-				} catch (IOException e) {
+				} catch (Exception e) {
 					logger.error("Error reading file: '{}'", attachment.getFilename(), e);
 				}
-				
-			} else {
-				logger.debug("Discarted file: '{}' from '{}'", attachment.getFilename(), attachment.getAuthor());
-			}
 		}
 		
 		if (stuffs.size() > 0) {

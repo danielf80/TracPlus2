@@ -1,0 +1,30 @@
+[CELESC] - [VP5] - Informe de Erro - LockTimeoutException em /medidor/VerDadosMedidor.xhtml
+
+Informe de Erro no Vision - celtmga
+    
+Data e Hora do Erro : 18/11/2011 15:05:33
+Usuário logado : José Carlos Martins (E015088) (10.0.44.178) - Data e Hora de login: 18/11/2011 14:40:18
+Tipo de Erro : LockTimeoutException em /medidor/VerDadosMedidor.xhtml
+Mensagem do Erro : FacesException: javax.faces.FacesException: javax.el.ELException: /pointSearch/advancedSearchUCForm.xhtml @12,61 opened="#{pointSearch.point == null}": Error reading 'point' on type com.synapsis.celesc.session.points.PointSearch_$$_javassist_25
+- FacesException: javax.el.ELException: /pointSearch/advancedSearchUCForm.xhtml @12,61 opened="#{pointSearch.point == null}": Error reading 'point' on type com.synapsis.celesc.session.points.PointSearch_$$_javassist_25
+- ELException: /pointSearch/advancedSearchUCForm.xhtml @12,61 opened="#{pointSearch.point == null}": Error reading 'point' on type com.synapsis.celesc.session.points.PointSearch_$$_javassist_25
+- LockTimeoutException: could not acquire lock on @Synchronized component: pointSearch
+Stack Trace : Exception.20111118150533.txt
+Session :
+[
+   ID: 5481D9AB9251696C379388A1701DA99E
+
+   Data criação: 18/11/2011 14:39:31
+   Data último acesso: 18/11/2011 15:05:31
+   Válida: true
+]
+Conversations :
+[
+   ID: 2054
+   ViewId: /point/StatusCampo.xhtml
+   Descrição: null
+   Data início: 18/11/2011 14:47:01
+   Última data: 18/11/2011 15:05:15
+   Corrente: false
+   Terminado: false
+]

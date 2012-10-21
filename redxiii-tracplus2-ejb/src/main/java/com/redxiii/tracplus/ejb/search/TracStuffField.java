@@ -10,7 +10,8 @@ public enum TracStuffField {
 	MODIFIED_TIMESTAMP,
 	CONTENT,
 	CONTEXT,
-	TAGS
+	TAGS,
+        CC,
 	;
 
 }

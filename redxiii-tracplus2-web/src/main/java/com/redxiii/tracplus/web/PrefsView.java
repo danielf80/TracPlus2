@@ -1,19 +1,16 @@
 package com.redxiii.tracplus.web;
 
+import com.redxiii.tracplus.ejb.util.AppConfiguration;
 import java.io.Serializable;
-
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.RequestScoped;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
-
 import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.redxiii.tracplus.ejb.util.AppConfiguration;
 
 /**
  * @author Daniel Filgueiras
@@ -136,11 +133,6 @@ public class PrefsView implements Serializable {
 	
 	public void save() {
 		Configuration configuration = AppConfiguration.getInstance();
-		
-		if (!appCtx.isSuperuser()) {
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Unauthorized user"));
-			return;
-		}
 		
 		logger.debug("Saving preferences...");
 		

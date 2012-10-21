@@ -16,8 +16,6 @@ import com.redxiii.tracplus.ejb.entity.Wiki;
 
 @Mock
 @Named
-@Singleton
-@ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 public class TracDSMock implements Datasource {
 
 	private SortedMap<Integer,TicketQueryResult> results;

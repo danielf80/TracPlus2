@@ -35,7 +35,7 @@ public class AppConfiguration {
 	
 	private AppConfiguration() {
 		
-		String url = getServerConfigFolder() + "tracplus.properties";
+		String url = getServerConfigFolder() + "tracplus2.properties";
 		logger.debug("Loading Configuration file ({}): '{}'", INSTANCE_ID.getAndIncrement(), url);
 		try {
 			configuration = new PropertiesConfiguration(url);
@@ -60,7 +60,7 @@ public class AppConfiguration {
 			return baseDir + File.separator;
 		}
 		
-		return System.getProperty("user.dir") + File.pathSeparator;
+		return System.getProperty("user.dir") + File.separator;
 	}
 	
 	public static String getServerConfigFolder() {
@@ -74,7 +74,7 @@ public class AppConfiguration {
 			return baseDir + GLASSFISH_CFG_DIR_KEY;
 		}
 		
-		return System.getProperty("user.dir") + File.pathSeparator;
+		return System.getProperty("user.dir") + File.separator;
 	}
 	
 	

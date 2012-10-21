@@ -5,13 +5,13 @@
 	xmlns:h="http://java.sun.com/jsf/html"
 	template="/app/templates/tracplus_v2.xhtml">
 	
+    <ui:define name="head">
+        <meta http-equiv="Refresh" content="1; URL=auth.jsf"/>
+    </ui:define>
+    
 	<ui:define name="content-header">
 		<div style="text-align: center;">
-			<span style="color: red;">Restricted Area. Authorized personnel only</span>
-			<br/>
-			<span>
-				<h:outputLink value="#{request.contextPath}/auth.jsf">Login</h:outputLink>
-			</span>
+                    <span style="color: red;">#{msg['page.expired.message']}</span>
 		</div>
 	</ui:define>
 	

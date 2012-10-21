@@ -2,7 +2,6 @@ package com.redxiii.tracplus.ejb.util;
 
 import java.text.MessageFormat;
 import java.util.ResourceBundle;
-
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Named;
 
@@ -53,10 +52,14 @@ public class I18n {
 	 * @return texto no idioma padrão
 	 */
 	public String getString(String key) {
-		if (bundle.containsKey(key))
-			return bundle.getString(key);
-		return "???" + key + "???";
+            ResourceBundle bundle = getBundle();
+            if (bundle.containsKey(key))
+                    return bundle.getString(key);
+            return "???" + key + "???";
 	}
 	
+        protected ResourceBundle getBundle() {
+            return bundle;
+        }
 	
 }
