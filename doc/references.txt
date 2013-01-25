@@ -9,3 +9,6 @@ Glassfish:
  * Queues:
  * SLF4J:
   1.http://hwellmann.blogspot.com.br/2010/12/glassfish-logging-with-slf4j-part-2.html
+
+ JSF 2.x
+  * Page Params and Actions: http://mkblog.exadel.com/2010/07/learning-jsf2-page-params-and-page-actions/

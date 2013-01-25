@@ -1,5 +1,7 @@
 package com.redxiii.tracplus.web.search;
 
+import java.io.Serializable;
+import java.net.URLDecoder;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,11 +12,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.SessionScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.apache.commons.lang.SerializationUtils;
 import org.apache.lucene.search.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,10 +32,6 @@ import com.redxiii.tracplus.ejb.search.query.SimpleQuerySpec;
 import com.redxiii.tracplus.ejb.util.AppConfiguration;
 import com.redxiii.tracplus.ejb.util.UsageStatistics;
 import com.redxiii.tracplus.web.AppSessionContext;
-import java.io.Serializable;
-import java.net.URLDecoder;
-import javax.annotation.PostConstruct;
-import org.apache.commons.lang.SerializationUtils;
 
 @Named("searchView")
 @SessionScoped
@@ -196,6 +196,9 @@ public class SearchView implements Serializable {
             case ticket:
             case wiki:
                 baseBuilder.addStrongRestriction(selectedFilterType.name(), TracStuffField.CONTEXT);
+                break;
+            case none:
+            	break;
         }
 
         if (!selectedFilterPeriod.equals(FilterPeriodSelection.all_entries)) {
@@ -206,7 +209,8 @@ public class SearchView implements Serializable {
             baseBuilder.addStrongRestriction(ctx.getUser().getName(), TracStuffField.CC);
         }
         
-        QueryBuilder<SimpleQuerySpec> queryBuilder = (QueryBuilder<SimpleQuerySpec>) SerializationUtils.clone(baseBuilder);
+        @SuppressWarnings("unchecked")
+		QueryBuilder<SimpleQuerySpec> queryBuilder = (QueryBuilder<SimpleQuerySpec>) SerializationUtils.clone(baseBuilder);
         
         switch (searchMethod) {
             case advanced:

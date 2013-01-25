@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<advices>
+	<banner>
+		<link value="123"/>
+		<image value="456"/>
+		<subject value="789"/>
+		<text value="000"/>
+	</banner>
+</advices>

@@ -19,11 +19,14 @@
         <script type='text/javascript'>
             $(function() {
                 $('#searchAction-default-div').tipsy();
-                $('#searchAction-precise-div').tipsy();
                 $('#searchAction-advanced-div').tipsy();
             });
         </script>
 
+        <f:metadata>
+            <f:viewParam name="searchText" value="#{searchInfo.searchText}" />
+        </f:metadata>
+        
         <h:form id="searchForm">
             <table style="width: 100px;">
                 <tr>
@@ -68,7 +71,7 @@
                         </h:selectOneMenu>
                     </td>
                     <td>
-                        <label for="sortby-option">Ordernar por:</label>
+                        <label for="sortby-option">#{msg['page.search.sort-by']}</label>
                     </td>
                     <td>
                         <h:selectOneMenu id="sortby-option" value="#{searchView.selectedSort}">
@@ -92,6 +95,29 @@
     </ui:define>
 
     <ui:define name="content">
+    	<div style="float: right">
+    		<ui:repeat value="#{bannerView.banners}" var="item">
+    			<table class="banner-table">
+    				<tr>
+    					<td>
+	    					<a href="#{item.link}">
+	    						<img src="#{item.imageUrl}" />
+	    					</a>
+    					</td>
+    				</tr>
+    				<tr>
+    					<td>
+    						<span style="font-weight: bold;">#{item.subject}</span>
+    					</td>
+   					</tr>
+   					<tr>
+    					<td>
+    						<span style="font-weight: lighter;">#{item.text}</span>
+    					</td>
+   					</tr>
+    			</table>
+    		</ui:repeat>
+    	</div>
         <div class="search-result-panel">
 
             <ui:fragment rendered="#{not empty searchInfo.interpretedQuery}">

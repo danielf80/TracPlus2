@@ -65,7 +65,8 @@ public class SearchTest {
         QueryBuilder<SimpleQuerySpec> baseBuilder = QueryBuilder.buildSimpleQuery();
      
 //        baseBuilder.addStrongRestriction("LockTimeoutException", TracStuffField.CONTENT);
-        baseBuilder.addStrongRestriction("could not acquire lock", TracStuffField.CONTENT);
+//        baseBuilder.addStrongRestriction("webm", TracStuffField.CONTENT);
+        baseBuilder.addLikeRestriction("webm", TracStuffField.CONTENT);
 //        baseBuilder.addStrongRestriction("\"could not acquire lock\"", TracStuffField.CONTENT);
 //        baseBuilder.addStrongRestriction("Synchronized", TracStuffField.CONTENT);
 

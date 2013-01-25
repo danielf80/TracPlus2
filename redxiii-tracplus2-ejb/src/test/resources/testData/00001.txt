@@ -1,0 +1,10 @@
+= Administração de Sistemas Linux via Web =
+por tpadovani em 28/06/2011
+
+Palavras-chave: webmin, linux, configuração, web, servidor
+
+Uma excelente ferramenta para administração de servidores Linux via Web: [http://www.webmin.com/ Webmin].
+
+Com ela é possível configurar facilmente os mais variados tipos de servidores, contas de usuários, tarefas do sistema, controle de acesso, logs, até configurações de hardware, partições, etc, além de ser possível também o monitoramento de serviços.
+
+Basta baixar do site ou diretamente da sua distribuição Linux. O mesmo pacote funciona para a maioria das distribuições Linux existentes. Durante a instalação é feita a detecção automática do sistema operacional e programas instalados.

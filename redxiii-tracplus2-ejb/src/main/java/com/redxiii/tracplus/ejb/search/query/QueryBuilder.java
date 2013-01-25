@@ -12,7 +12,9 @@ import org.apache.commons.configuration.Configuration;
 
 public class QueryBuilder<T> implements Serializable {
 
-    private BasicQuery query;
+	private static final long serialVersionUID = 1L;
+
+	private BasicQuery query;
 
     private final int MINIMAL_SIZE_TERM;
     private final int REGULAR_SIZE_TERM;
@@ -24,7 +26,7 @@ public class QueryBuilder<T> implements Serializable {
         Configuration config = AppConfiguration.getInstance();
         MINIMAL_SIZE_TERM = config.getInt("lucene.search-manager.term.minimal-size", 3);
         REGULAR_SIZE_TERM = config.getInt("lucene.search-manager.term.regular-size", 8);
-        REGULAR_FUZZY_WEIGHT = config.getFloat("lucene.search-manager.fuzzy.regular-weigh", 0.75f);
+        REGULAR_FUZZY_WEIGHT = config.getFloat("lucene.search-manager.fuzzy.regular-weigh", 0.65f);
         OTHER_FUZZY_WEIGHT = config.getFloat("lucene.search-manager.fuzzy.other-weigh", 0.75f);
     }
 
@@ -104,7 +106,9 @@ public class QueryBuilder<T> implements Serializable {
 
 class BasicQuery implements SimpleQuerySpec, Serializable {
 
-    protected int maxHits = 100;
+	private static final long serialVersionUID = 1L;
+	
+	protected int maxHits = 100;
     protected String luceneQuery;
     protected Integer filterRecentDays;
     protected Collection<Restriction> restrictions = new ArrayList<Restriction>();
@@ -180,7 +184,9 @@ class BasicQuery implements SimpleQuerySpec, Serializable {
 
 class Restriction implements Serializable {
 
-    public final String value;
+	private static final long serialVersionUID = 1L;
+	
+	public final String value;
     public final Set<TracStuffField> fields;
     public final boolean like;
     public final boolean mustHave;

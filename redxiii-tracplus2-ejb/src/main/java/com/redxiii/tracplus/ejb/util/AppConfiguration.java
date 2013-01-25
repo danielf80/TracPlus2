@@ -1,6 +1,5 @@
 package com.redxiii.tracplus.ejb.util;
 
-import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
@@ -19,16 +18,10 @@ import org.slf4j.LoggerFactory;
  * 
  * TODO: http://czetsuya-tech.blogspot.com.br/2012/07/how-to-load-property-file-from.html
  */
-public class AppConfiguration {
+public class AppConfiguration extends ServerConfiguration {
 	
 	private static final Logger logger = LoggerFactory.getLogger(AppConfiguration.class);
 	private static final AtomicInteger INSTANCE_ID = new AtomicInteger(1);
-	
-	private static final String JBOSS_BASE_DIR_KEY = "jboss.server.base.dir";
-	private static final String GLASSFISH_BASE_DIR_KEY = "com.sun.aas.instanceRoot";
-	
-	private static final String JBOSS_CFG_DIR_KEY = File.separator + "configuration" + File.separator;
-	private static final String GLASSFISH_CFG_DIR_KEY = File.separator + "config" + File.separator;
 	
 	private static AppConfiguration instance;
 	private PropertiesConfiguration configuration;
@@ -48,36 +41,7 @@ public class AppConfiguration {
 			configuration = new PropertiesConfiguration();
 		} 
 	}
-	
-	public static String getRootConfigFolder() {
-		String baseDir = System.getProperty(JBOSS_BASE_DIR_KEY);
-		if (baseDir != null && new File(baseDir).exists()) {
-			return baseDir + File.separator;
-		}
 		
-		baseDir = System.getProperty(GLASSFISH_BASE_DIR_KEY);
-		if (baseDir != null && new File(baseDir).exists()) {
-			return baseDir + File.separator;
-		}
-		
-		return System.getProperty("user.dir") + File.separator;
-	}
-	
-	public static String getServerConfigFolder() {
-		String baseDir = System.getProperty(JBOSS_BASE_DIR_KEY);
-		if (baseDir != null && new File(baseDir).exists()) {
-			return baseDir + JBOSS_CFG_DIR_KEY;
-		}
-		
-		baseDir = System.getProperty(GLASSFISH_BASE_DIR_KEY);
-		if (baseDir != null && new File(baseDir).exists()) {
-			return baseDir + GLASSFISH_CFG_DIR_KEY;
-		}
-		
-		return System.getProperty("user.dir") + File.separator;
-	}
-	
-	
 	public synchronized static Configuration getInstance() {
 		if (instance == null)
 			instance = new AppConfiguration();

@@ -2,7 +2,6 @@ package com.redxiii.tracplus.ejb.search;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Map;
 
 import com.redxiii.tracplus.ejb.entity.Ticket;
 import com.redxiii.tracplus.ejb.entity.Wiki;
@@ -21,7 +20,7 @@ public class TracStuff {
 	private String description;
 	private String tags = "";
 	private String context = "";
-        private String cc = "";
+	private String cc = "";
 	private long modifiedTimestamp;
 	
 	private TracStuff(){}
@@ -64,6 +63,7 @@ public class TracStuff {
 	public TracStuff(String id, String url, String author,
 			String content, Date createdDate, long modifiedTimestamp,
 			String description, String context) {
+		this();
 		this.id = id;
 		this.url = getBaseUrl() + url;
 		this.author = author;

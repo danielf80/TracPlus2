@@ -1,6 +1,5 @@
 package com.redxiii.tracplus.ejb.search.updater;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -26,8 +25,6 @@ import com.redxiii.tracplus.ejb.datasources.TicketQueryResult;
 import com.redxiii.tracplus.ejb.entity.Attachment;
 import com.redxiii.tracplus.ejb.entity.Wiki;
 import com.redxiii.tracplus.ejb.search.TracStuff;
-import com.redxiii.tracplus.ejb.util.AppConfiguration;
-import com.redxiii.tracplus.ejb.util.PDFExtraction;
 
 /**
  * @author Daniel Filgueiras
@@ -37,8 +34,7 @@ import com.redxiii.tracplus.ejb.util.PDFExtraction;
 		@ActivationConfigProperty(propertyName = "acknowledgeMode", propertyValue = "Auto-acknowledge"),
 		@ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
 		@ActivationConfigProperty(propertyName = "destination", propertyValue = "queue.com.redxiii.tracplus2"),
-                @ActivationConfigProperty(propertyName = "maxSession", propertyValue = "1")
-})
+		@ActivationConfigProperty(propertyName = "maxSession", propertyValue = "1") })
 public class TracIndexerQueue implements MessageListener {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -143,38 +139,38 @@ public class TracIndexerQueue implements MessageListener {
 		long rangeStart = mapMessage.getLong("range-start");
 		long rangeEnd = mapMessage.getLong("range-end");
 		List<TracStuff> stuffs = new ArrayList<TracStuff>();
-		String path = AppConfiguration.getInstance().getString("trac.home-dir.attachments");
+//		String path = AppConfiguration.getInstance().getString("trac.home-dir.attachments");
 		
 		logger.info("Loading attachments details between '{}' and '{}'", formatter.print(rangeStart), formatter.print(rangeEnd));
 		List<Attachment> attachments = datasource.getTicketAttachments(rangeStart, rangeEnd);
 		
 		logger.info("Handling '{}' attachments", attachments.size());
 		for (Attachment attachment : attachments) {
-			
-				logger.trace("Reading '{}'", attachment.getFilename());
-				
-                                String id = attachment.getType() + "/" + attachment.getId() + "/" + attachment.getFilename();
-                                
-				try {
-                                    if (attachment.getFilename().endsWith(".pdf")) {
-//					String attachmentText = PDFExtraction.extract(path + "/" + attachment.getType() + "/" + attachment.getId(), attachment.getFilename());
-                                    }
-                                        String attachmentText = attachment.getFullDescription();
-					
-					if (attachmentText != null && attachmentText.length() > 0) {
-						
-						stuffs.add(new TracStuff(
-								id, 
-								"attachment/" + id, 
-								attachment.getAuthor(), 
-								attachmentText, 
-								new Date(attachment.getTime() * 1000L), 
-								attachment.getTime() * 1000L,
-								attachment.getFullDescription(), "attachment"));
-					}
-				} catch (Exception e) {
-					logger.error("Error reading file: '{}'", attachment.getFilename(), e);
+
+			logger.trace("Reading '{}'", attachment.getFilename());
+
+			String id = attachment.getType() + "/" + attachment.getId() + "/"
+					+ attachment.getFilename();
+
+			try {
+				if (attachment.getFilename().endsWith(".pdf")) {
+					// String attachmentText = PDFExtraction.extract(path + "/"
+					// + attachment.getType() + "/" + attachment.getId(),
+					// attachment.getFilename());
 				}
+				String attachmentText = attachment.getFullDescription();
+
+				if (attachmentText != null && attachmentText.length() > 0) {
+
+					stuffs.add(new TracStuff(id, "attachment/" + id, attachment
+							.getAuthor(), attachmentText, new Date(attachment
+							.getTime() * 1000L), attachment.getTime() * 1000L,
+							attachment.getFullDescription(), "attachment"));
+				}
+			} catch (Exception e) {
+				logger.error("Error reading file: '{}'",
+						attachment.getFilename(), e);
+			}
 		}
 		
 		if (stuffs.size() > 0) {
