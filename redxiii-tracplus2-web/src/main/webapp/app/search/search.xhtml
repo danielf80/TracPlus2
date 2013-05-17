@@ -5,6 +5,10 @@
                 xmlns:h="http://java.sun.com/jsf/html"
                 template="/app/templates/tracplus_v2.xhtml">
 
+	<ui:define name="head">
+		<h:outputScript library="js" name="search-basic.js" />
+	</ui:define>
+
     <ui:define name="app-panel-links">
         <h:outputLink value="#{request.contextPath}/app/info.jsf">
             <h:graphicImage value="/resources/gfx/icon/info.png" />
@@ -54,8 +58,11 @@
                 <tr>
                     <td>#{msg['page.search.filter-by-type']}:</td>
                     <td>
-                        <h:selectOneRadio value="#{searchView.selectedFilterType}" layout="lineDirection">
-                            <f:selectItems value="#{searchView.filterTypeSelections}" var="item" itemValue="#{item}" itemLabel="#{i18n.getEnum(item)}"/>
+                        <h:selectOneRadio value="#{searchView.selectedFilterType}" layout="lineDirection"
+                        	onchange="switchVibility($('input:radio:checked').val())">
+                            <f:selectItems value="#{searchView.filterTypeSelections}" var="item" 
+                            	itemValue="#{item}" itemLabel="#{i18n.getEnum(item)}" onclick="switchVibility(#{item})"/>
+                            
                         </h:selectOneRadio>
                     </td>
                 </tr>
@@ -80,44 +87,15 @@
                     </td>
                 </tr>
             </table>
-            <table class="search-table-options">
-                <tr>
-                    <td>
-                        <label for="filter-copied-option">#{msg['page.search.filter-copied']}:</label>
-                    </td>
-                    <td>
-                        <h:selectBooleanCheckbox value="#{searchView.filterCopied}" />
-                    </td>
-                </tr>
-            </table>
-
         </h:form>
     </ui:define>
 
     <ui:define name="content">
+    
     	<div style="float: right">
-    		<ui:repeat value="#{bannerView.banners}" var="item">
-    			<table class="banner-table">
-    				<tr>
-    					<td>
-	    					<a href="#{item.link}">
-	    						<img src="#{item.imageUrl}" />
-	    					</a>
-    					</td>
-    				</tr>
-    				<tr>
-    					<td>
-    						<span style="font-weight: bold;">#{item.subject}</span>
-    					</td>
-   					</tr>
-   					<tr>
-    					<td>
-    						<span style="font-weight: lighter;">#{item.text}</span>
-    					</td>
-   					</tr>
-    			</table>
-    		</ui:repeat>
+    		<ui:include src="/app/banner.xhtml" />
     	</div>
+    	
         <div class="search-result-panel">
 
             <ui:fragment rendered="#{not empty searchInfo.interpretedQuery}">
@@ -141,20 +119,22 @@
             </ui:fragment>
             <br/>		
             <ui:repeat value="#{searchView.results}" var="result" rendered="#{not empty searchView.results}">
-                <div style="padding-bottom: 2px;">
+                <div id="#{result.context}-#{result.index}">
                     <table>
                         <tr>
-                            <td rowspan="2" style="padding: 5px; width: 20px;">
+                            <td rowspan="3" class="search-result-icon">
                                 <h:graphicImage value="/resources/gfx/#{searchView.getResultImage(result)}.png" />
                             </td>
                             <td>
-                                <table>
+                                <table class="search-result-header">
                                     <tr>
                                         <td>
-                                            <a href="#{result.url}" class="search-trac-link"><h:outputText value="#{result.description}" /></a>
+                                            <a href="#{request.contextPath}/sfb.jsf?#{result.url}" target="_blank"><h:outputText value="#{result.description}" /></a>
                                         </td>
                                         <td>
-                                            <h:graphicImage value="/resources/gfx/icon/locked.png" rendered="#{not result.hasCc(appSessionContext.user.name)}" />
+                                        	<ui:fragment rendered="#{result.context.equals('ticket')}">
+                                            	<h:graphicImage value="/resources/gfx/icon/ticket_#{result.status.closed ? 'closed' : 'open'}.png" title="#{i18n.getEnum(result.status)}"/>
+	                                        </ui:fragment>
                                         </td>
                                     </tr>
                                 </table>
@@ -168,6 +148,13 @@
                                 </span>
                             </td>
                         </tr>
+                        <ui:fragment rendered="#{result.context.equals('ticket')}">
+	                        <tr>
+	                            <td>
+	                               	<span style="font-size: 10px; color: green"><b>Cc:</b> #{result.cc} <b>| Status:</b> #{result.status}</span>
+								</td>
+							</tr>
+						</ui:fragment>
                     </table>
 
                 </div>			

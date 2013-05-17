@@ -7,19 +7,23 @@ import org.apache.lucene.document.Document;
 
 public class LuceneResult implements SearchResult {
 
+	private int index;
     private String id;
     private String modifiedDate;
     private String context;
     private Document document;
     private float score;
+    private TicketStatus status;
     private List<String> fragments = new ArrayList<String>();
 
-    public LuceneResult(Document document, float score) {
+    public LuceneResult(int index, Document document, float score) {
+    	this.index = index;
         this.document = document;
         this.score = score;
         this.id = document.get(TracStuffField.ID.toString());
         this.modifiedDate = document.get(TracStuffField.MODIFIED_DATE.toString());
         this.context = document.get(TracStuffField.CONTEXT.toString());
+        this.status = TicketStatus.getStatus(document.get(TracStuffField.STATUS.toString()));
     }
 
     @Override
@@ -50,6 +54,10 @@ public class LuceneResult implements SearchResult {
 
     public List<String> getFragments() {
         return fragments;
+    }
+    
+    public int getIndex() {
+    	return index;
     }
 
     public float getScore() {
@@ -91,18 +99,9 @@ public class LuceneResult implements SearchResult {
     public String getCc() {
         return document.get(TracStuffField.CC.toString());
     }
-
-    @Override
-    public boolean hasCc(String user) {
-        
-        if (context.equals("wiki"))
-            return true;
-        
-        String cc = getCc();
-        if (cc == null) {
-            return false;
-        }
-        return cc.contains(user);
+    
+    public TicketStatus getStatus() {
+    	return status;
     }
 
     @Override

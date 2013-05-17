@@ -16,7 +16,6 @@ import java.util.HashSet;
 import java.util.Set;
 import org.apache.lucene.search.Query;
 import org.junit.Test;
-import org.junit.runner.notification.RunListener;
 
 /*
  * To change this template, choose Tools | Templates
@@ -38,7 +37,6 @@ public class SearchTest {
         System.setProperty("jboss.server.base.dir", "C:/TEMP");
         
         LuceneIndexManager indexManager = new LuceneIndexManager();
-        indexManager.init();
         
         indexManager.purgeAndRecreate();
         

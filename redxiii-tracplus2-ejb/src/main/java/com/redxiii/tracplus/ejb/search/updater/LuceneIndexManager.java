@@ -1,46 +1,38 @@
 package com.redxiii.tracplus.ejb.search.updater;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import javax.annotation.PostConstruct;
-import javax.ejb.LocalBean;
-import javax.ejb.Singleton;
+import javax.ejb.AccessTimeout;
+import javax.ejb.LockType;
+import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.apache.commons.configuration.Configuration;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.Field.Index;
-import org.apache.lucene.document.Field.Store;
-import org.apache.lucene.document.NumericField;
+import org.apache.lucene.document.FieldType;
+import org.apache.lucene.document.LongField;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.queryParser.ParseException;
-import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.FuzzyQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.NumericRangeQuery;
+import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopScoreDocCollector;
-import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.LockObtainFailedException;
-import org.apache.lucene.store.SimpleFSDirectory;
-import org.apache.lucene.util.Version;
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,69 +42,35 @@ import com.redxiii.tracplus.ejb.search.SearchResult;
 import com.redxiii.tracplus.ejb.search.TracStuff;
 import com.redxiii.tracplus.ejb.search.TracStuffField;
 import com.redxiii.tracplus.ejb.search.query.SimpleQuerySpec;
-import com.redxiii.tracplus.ejb.util.AppConfiguration;
-import javax.ejb.AccessTimeout;
-import javax.ejb.ConcurrencyManagement;
-import javax.ejb.ConcurrencyManagementType;
-import javax.ejb.LockType;
-import org.apache.lucene.search.PhraseQuery;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
 @Named
-@Singleton
-@LocalBean
-@ConcurrencyManagement(ConcurrencyManagementType.CONTAINER)
-@AccessTimeout(10000)
 public class LuceneIndexManager implements Serializable, SearchManager {
 
     private static final long serialVersionUID = 1L;
     private final DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd_HH:mm:ss");
     private Logger logger = LoggerFactory.getLogger(getClass());
-    private File path;
-    private Version version;
-    private Directory directory;
-    private StandardAnalyzer analyzer;
 
-    @PostConstruct
-    public void init() {
-        try {
-            Configuration configuration = AppConfiguration.getInstance();
-
-            version = Version.valueOf(configuration.getString("lucene-index.version", Version.LUCENE_36.name()));
-            path = new File(AppConfiguration.getRootConfigFolder() + configuration.getString("lucene-index.directory", "/wiki-lucene-index/"));
-
-            if (path.exists()) {
-                path.createNewFile();
-            }
-
-            this.directory = new SimpleFSDirectory(path);
-            this.analyzer = new StandardAnalyzer(version);
-        } catch (IOException e) {
-            logger.error("Error loading lucene index", e);
-        }
+    @Inject
+    private LuceneIndexFactory indexFactory;
+    
+    private FieldType createFieldType(boolean stored, boolean indexed) {
+    	FieldType fieldType = new FieldType();
+        fieldType.setStored(stored);
+        fieldType.setIndexed(indexed);
+        fieldType.freeze();
+        
+        return fieldType;
     }
-
-    private IndexWriter createIndexWriter() {
-        try {
-            return new IndexWriter(directory, new IndexWriterConfig(version, analyzer));
-        } catch (CorruptIndexException e) {
-            logger.error("Error updating Lucene index", e);
-        } catch (LockObtainFailedException e) {
-            logger.error("Error updating Lucene index", e);
-        } catch (IOException e) {
-            logger.error("Error updating Lucene index", e);
-        }
-        return null;
-    }
-
-    @javax.ejb.Lock(LockType.WRITE)
-    @AccessTimeout(30000)
+    
     public void updateIndex(Collection<TracStuff> stuffs) {
         IndexWriter writer = null;
         try {
-            writer = createIndexWriter();
+            writer = indexFactory.createIndexWriter();
 
+            final FieldType fIndexedStored = createFieldType(true, true);
+            final FieldType fIndexed = createFieldType(false, true);
+            final FieldType fStored = createFieldType(true, false);
+            
             for (TracStuff tracStuff : stuffs) {
                 logger.info("Indexing: {} owned by {} modified at {}", new Object[]{
                         tracStuff.getId(), 
@@ -120,20 +78,23 @@ public class LuceneIndexManager implements Serializable, SearchManager {
                         formatter.print(tracStuff.getModifiedTimestamp()) });
 
                 Document doc = new Document();
-
-                doc.add(new Field(TracStuffField.ID.toString(), tracStuff.getId(), Store.YES, Index.NO));
+                
+                doc.add(new Field(TracStuffField.ID.toString(), tracStuff.getId(), fStored));
+                
+                // Indexed and Stored data
+                doc.add(new Field(TracStuffField.DESCRIPTION.toString(), tracStuff.getDescription(), fIndexedStored));
+                doc.add(new Field(TracStuffField.CONTEXT.toString(), tracStuff.getContext(), fIndexedStored));   // This is stored for display icon
                 
                 // Indexed data
-                doc.add(new Field(TracStuffField.DESCRIPTION.toString(), tracStuff.getDescription(), Store.YES, Index.ANALYZED));
-                doc.add(new Field(TracStuffField.CONTEXT.toString(), tracStuff.getContext(), Store.YES, Index.ANALYZED));   // This is stored for display icon
-                doc.add(new Field(TracStuffField.CONTENT.toString(), tracStuff.getContent(), Store.NO, Index.ANALYZED));
-                doc.add(new NumericField(TracStuffField.MODIFIED_TIMESTAMP.toString(), Store.NO, true).setLongValue(tracStuff.getModifiedTimestamp()));
-                doc.add(new Field(TracStuffField.CC.toString(), tracStuff.getCc(), Store.YES, Index.ANALYZED));
+                doc.add(new Field(TracStuffField.CONTENT.toString(), tracStuff.getContent(), fIndexed));
+                doc.add(new LongField(TracStuffField.MODIFIED_TIMESTAMP.toString(), tracStuff.getModifiedTimestamp(), fIndexed));
                 
                 //Storage data
-                doc.add(new Field(TracStuffField.AUTHOR.toString(), tracStuff.getAuthor(), Store.YES, Index.NO));
-                doc.add(new Field(TracStuffField.URL.toString(), tracStuff.getUrl(), Store.YES, Index.NO));
-                doc.add(new Field(TracStuffField.MODIFIED_DATE.toString(), tracStuff.getModifiedDate(), Store.YES, Index.NO));
+                doc.add(new Field(TracStuffField.AUTHOR.toString(), tracStuff.getAuthor(), fStored));
+                doc.add(new Field(TracStuffField.URL.toString(), tracStuff.getUrl(), fStored));
+                doc.add(new Field(TracStuffField.MODIFIED_DATE.toString(), tracStuff.getModifiedDate(), fStored));
+                doc.add(new Field(TracStuffField.STATUS.toString(), tracStuff.getStatus(), fStored));
+                doc.add(new Field(TracStuffField.CC.toString(), tracStuff.getCc(), fStored));
                 
 
                 writer.updateDocument(new Term(TracStuffField.ID.toString(), tracStuff.getId()), doc);
@@ -157,7 +118,7 @@ public class LuceneIndexManager implements Serializable, SearchManager {
     public void purgeAndRecreate() {
         IndexWriter writer = null;
         try {
-            writer = createIndexWriter();
+            writer = indexFactory.createIndexWriter();
             writer.deleteAll();
             writer.commit();
         } catch (Exception e) {
@@ -198,7 +159,8 @@ public class LuceneIndexManager implements Serializable, SearchManager {
 
                 Query query = null;
                 if (spec.isLikeRestriction(field, value)) {
-                    query = new FuzzyQuery(new Term(field.name(), value), spec.getLikeRestrictionWeight(field, value));
+//                    query = new FuzzyQuery(new Term(field.name(), value), spec.getLikeRestrictionWeight(field, value));
+                	query = new FuzzyQuery(new Term(field.name(), value));
                 } else {
                     if (value.contains(" ")) {
                         query = new PhraseQuery();
@@ -224,19 +186,10 @@ public class LuceneIndexManager implements Serializable, SearchManager {
         }
 
         if (spec.getLuceneQuery() != null) {
-            mainQuery.add(parseLuceneQuery(spec.getLuceneQuery()), Occur.SHOULD);
+            mainQuery.add(indexFactory.createQuery(TracStuffField.CONTENT.name(), spec.getLuceneQuery()), Occur.SHOULD);
         }
 
         return mainQuery;
-    }
-
-    private Query parseLuceneQuery(String lucene) {
-        try {
-            return new QueryParser(version, TracStuffField.CONTENT.name(), analyzer).parse(lucene);
-        } catch (ParseException e) {
-            logger.error("Error creating query", e);
-        }
-        return null;
     }
 
     @javax.ejb.Lock(LockType.READ)
@@ -250,32 +203,25 @@ public class LuceneIndexManager implements Serializable, SearchManager {
             return results;
         }
 
+        IndexReader reader = indexFactory.createIndexReader();
         IndexSearcher searcher = null;
-        IndexReader reader = null;
         try {
-            reader = IndexReader.open(directory);
-
-            searcher = new IndexSearcher(reader);
+        	searcher = new IndexSearcher(reader);
+        	
             TopScoreDocCollector collector = TopScoreDocCollector.create(100, true);
             searcher.search(query, collector);
 
             ScoreDoc[] hits = collector.topDocs().scoreDocs;
+            int index = 0;
             for (ScoreDoc hit : hits) {
                 Document doc = searcher.doc(hit.doc);
-                results.add(new LuceneResult(doc, hit.score));
+                results.add(new LuceneResult(index++, doc, hit.score));
             }
         } catch (CorruptIndexException e) {
             logger.error("Error searching Lucene index", e);
         } catch (IOException e) {
             logger.error("Error searching Lucene index", e);
         } finally {
-            if (searcher != null) {
-                try {
-                    searcher.close();
-                } catch (IOException e) {
-                    logger.error("Error closing Lucene index", e);
-                }
-            }
             if (reader != null) {
                 try {
                     reader.close();

@@ -25,6 +25,9 @@ import com.redxiii.tracplus.ejb.datasources.TicketQueryResult;
 import com.redxiii.tracplus.ejb.entity.Attachment;
 import com.redxiii.tracplus.ejb.entity.Wiki;
 import com.redxiii.tracplus.ejb.search.TracStuff;
+import com.redxiii.tracplus.ejb.search.filters.IndexFilter;
+import com.redxiii.tracplus.ejb.util.AppConfiguration;
+import com.redxiii.tracplus.ejb.util.IndexingStatistics;
 
 /**
  * @author Daniel Filgueiras
@@ -45,6 +48,29 @@ public class TracIndexerQueue implements MessageListener {
 	
 	@Inject
 	private LuceneIndexManager luceneIndexManager;
+	
+	@Inject
+	private IndexingStatistics indexingStatistics;
+	
+	private IndexFilter indexFilter;
+	
+	public TracIndexerQueue() {
+		if (AppConfiguration.getInstance().containsKey("lucene.index-builder.filter")) {
+			String filterClass = AppConfiguration.getInstance().getString("lucene.index-builder.filter");
+			try {
+				@SuppressWarnings("unchecked")
+				Class<IndexFilter> clazz = (Class<IndexFilter>) Thread.currentThread().getContextClassLoader().loadClass(filterClass);
+				indexFilter = clazz.newInstance();
+				logger.debug("Index filter initialized: '{}'", filterClass);
+			} catch (Exception e) {
+				logger.error("Fail to load index filter '{}'", filterClass, e);
+			} 
+		}
+		
+		if (indexFilter == null) {
+			indexFilter = new IndexFilter.AcceptAllFilter();
+		}
+	}
 
 	public void onMessage(Message inMessage) {
 		
@@ -57,16 +83,26 @@ public class TracIndexerQueue implements MessageListener {
 				
 				if (type.equals("ticket")) {
 					handleTicketMessage(mapMessage);
+					indexingStatistics.updateIndexedEndTime();
 				} else if (type.equals("wiki")) {
 					handleWikiMessage(mapMessage);
+					indexingStatistics.updateIndexedEndTime();
 				} else if (type.equals("ticket-upd")) {
 					handleTicketUpdMessage(mapMessage);
 				} else if (type.equals("attachment")) {
 					handleAttachment(mapMessage);
+					indexingStatistics.updateIndexedEndTime();
 				}
+				
 			}
 		} catch (JMSException e) {
 			e.printStackTrace();
+		}
+	}
+	
+	private void logIndexedWikis(Collection<TracStuff> stuffs) {
+		for (TracStuff stuff : stuffs) {
+			indexingStatistics.newIndexedDoc(stuff.getContent().length());
 		}
 	}
 
@@ -80,23 +116,30 @@ public class TracIndexerQueue implements MessageListener {
 			
 			logger.info("Loading wiki page: '{}' version '{}'", name, version);
 			Wiki wiki = datasource.getWiki(name, version);
-			stuffs.add(new TracStuff(wiki));
+			
+			if (indexFilter.isAllowed(wiki)) {
+				stuffs.add(new TracStuff(wiki));
+			}
 		}
 
 		logger.info("Updating index with {} wiki stuffs", stuffs.size());
-		luceneIndexManager.updateIndex(stuffs);		
+		luceneIndexManager.updateIndex(stuffs);
+		logIndexedWikis(stuffs);
 	}
 	
-	private Collection<TracStuff> getWikis(List<TicketQueryResult> tickets) {
+	private Collection<TracStuff> getTickets(List<TicketQueryResult> tickets) {
 		Map<Integer, TracStuff> stuffs = new HashMap<Integer, TracStuff>();
 		
 		for (TicketQueryResult result : tickets) {
-			TracStuff stuff = stuffs.get(result.getId());
-			if (stuff == null) {
-				stuff = new TracStuff(result);
-				stuffs.put(result.getId(), stuff);
-			} else {
-				stuff.addContent(result.getNewvalue(), result.getModified());
+			
+			if (indexFilter.isAllowed(result)) {
+				TracStuff stuff = stuffs.get(result.getId());
+				if (stuff == null) {
+					stuff = new TracStuff(result);
+					stuffs.put(result.getId(), stuff);
+				} else {
+					stuff.addContent(result.getNewvalue(), result.getModified());
+				}
 			}
 		}
 		
@@ -109,11 +152,12 @@ public class TracIndexerQueue implements MessageListener {
 		
 		logger.info("Loading tickets from '{}' to '{}'", rangeStart, rangeEnd);
 		List<TicketQueryResult> results = datasource.getTicketInfo(rangeStart, rangeEnd);
-		Collection<TracStuff> stuffs = getWikis(results);
+		Collection<TracStuff> stuffs = getTickets(results);
 		
 		
 		logger.info("Updating index with {} ticket stuffs", stuffs.size());
 		luceneIndexManager.updateIndex(stuffs);
+		logIndexedWikis(stuffs);
 	}
 	
 	private void handleTicketUpdMessage(MapMessage mapMessage) throws JMSException {
@@ -127,7 +171,7 @@ public class TracIndexerQueue implements MessageListener {
 			
 			List<TicketQueryResult> results = datasource.getTicketInfo(id);
 
-			stuffs.addAll(getWikis(results));
+			stuffs.addAll(getTickets(results));
 		}
 		
 		logger.info("Updating index with {} ticket stuffs", stuffs.size());
@@ -147,6 +191,9 @@ public class TracIndexerQueue implements MessageListener {
 		logger.info("Handling '{}' attachments", attachments.size());
 		for (Attachment attachment : attachments) {
 
+			if (!indexFilter.isAllowed(attachment))
+				continue;
+			
 			logger.trace("Reading '{}'", attachment.getFilename());
 
 			String id = attachment.getType() + "/" + attachment.getId() + "/"

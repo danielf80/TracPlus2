@@ -5,6 +5,7 @@ import javax.ejb.EJB;
 import javax.ejb.Schedule;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
+import javax.inject.Inject;
 
 import org.apache.log4j.BasicConfigurator;
 import org.slf4j.Logger;
@@ -12,14 +13,19 @@ import org.slf4j.LoggerFactory;
 
 import com.redxiii.tracplus.ejb.search.updater.TracIndexer;
 import com.redxiii.tracplus.ejb.util.AppConfiguration;
+import com.redxiii.tracplus.ejb.util.IndexingStatistics;
 
 @Singleton
 @Startup
 public class IndexUpdaterScheduler {
 
     private Logger logger;
+    
     @EJB
     private TracIndexer tracIndexer;
+    
+    @Inject
+	private IndexingStatistics indexingStatistics;
 
     @Schedule(hour = "22", minute = "0", second = "0")
     public void completeUpdate() {
@@ -60,6 +66,7 @@ public class IndexUpdaterScheduler {
 
     public void completeIndexUpdate() {
         tracIndexer.completeIndexUpdate();
-
+        indexingStatistics.resetIndexedDocs();
+        indexingStatistics.resetIndexedStartTime();
     }
 }

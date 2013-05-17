@@ -127,11 +127,13 @@ public class TracIndexer {
 		
 		logger.info("Getting first and last ticket id...");
 		
-		final Number firstTicketId = datasource.getFirstTicketId();
+		Number firstTicketId = datasource.getFirstTicketId();
 		logger.info("First ticket: {}", firstTicketId);
 		
 		final Number lastTicketId = datasource.getLastTicketId();
 		logger.info("Last ticket: {}", lastTicketId);
+		
+		firstTicketId = lastTicketId.intValue() - 1000;
 		
 		int ticketId = firstTicketId.intValue();
                 int maxFetch = AppConfiguration.getInstance().getInt("lucene.index-builder.batch-size.ticket", 25);

@@ -8,6 +8,7 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Named;
 
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
@@ -36,8 +37,10 @@ public class BannerView implements Serializable {
 		
 		List<HierarchicalConfiguration> packNodes = BannerConfig.getInstance().configurationsAt("banner");
 		for (HierarchicalConfiguration packNode : packNodes) {
+			
+			String link = packNode.configurationAt("link").getProperty("[@value]").toString();
 			Banner banner = new Banner();
-			banner.setLink(packNode.configurationAt("link").getProperty("[@value]").toString());
+			banner.setLink("redirectTo=" + Hex.encodeHexString(link.getBytes()));
 			banner.setImageUrl(packNode.configurationAt("image").getProperty("[@value]").toString());
 			banner.setSubject(packNode.configurationAt("subject").getProperty("[@value]").toString());
 			banner.setText(packNode.configurationAt("text").getProperty("[@value]").toString());

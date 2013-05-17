@@ -114,7 +114,17 @@ public class TracDS implements Datasource {
             "SELECT ticket.id from ticket where changetime >= ? order by ticket.changetime", datetime);
 	}
 	
-	
+	/* (non-Javadoc)
+	 * @see com.redxiii.tracplus.ejb.datasources.Datasource#getChangeTicketsIds(long)
+	 */
+	@Override
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public List<Integer> getChangeTicketsIds(String user, long changetime) {
+            long datetime = changetime / 1000L;
+            logger.debug("Loading changed tickets after: {} = {}", new Date(changetime), datetime);
+            return (List) access.executeListScalarQuery(
+            "SELECT distinct(id) from ticket_change where author = ? and time >= ? and field in ('comment','status')", user, datetime);
+	}
 	
 	/* (non-Javadoc)
 	 * @see com.redxiii.tracplus.ejb.datasources.Datasource#getLastWikiUpdate()

@@ -3,6 +3,8 @@ package com.redxiii.tracplus.ejb.search;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.redxiii.tracplus.ejb.entity.Ticket;
 import com.redxiii.tracplus.ejb.entity.Wiki;
 import com.redxiii.tracplus.ejb.util.AppConfiguration;
@@ -21,6 +23,7 @@ public class TracStuff {
 	private String tags = "";
 	private String context = "";
 	private String cc = "";
+	private String status = "";	
 	private long modifiedTimestamp;
 	
 	private TracStuff(){}
@@ -43,7 +46,20 @@ public class TracStuff {
 				1000L * (Integer)ticket.getChangetime(), 		//MODIFIED DATE
 				ticket.getSummary(), 							//DESCRIPTION
 				"ticket");										//CONTEXT
-                this.cc = ticket.getCc() + "," + ticket.getOwner() + "," + ticket.getReporter();
+		
+        this.status = ticket.getStatus();
+        
+        String owner = StringUtils.trimToEmpty(ticket.getOwner());
+        String[] ccs = StringUtils.split(ticket.getCc(), ',');
+        if (ccs != null) {
+	        for (String copied : ccs) {
+	        	if (!StringUtils.isEmpty(copied) && !copied.equals(owner)) {
+	        		this.cc += copied + ",";
+	        	}
+	        }
+        }
+        
+        this.cc += StringUtils.trimToEmpty(ticket.getOwner());
 	}
 	
 	public TracStuff(Wiki wiki) {
@@ -128,5 +144,13 @@ public class TracStuff {
     public String getCc() {
         return cc;
     }
+    
+    public String getStatus() {
+		return status;
+	}
+    
+    public void setStatus(String status) {
+		this.status = status;
+	}
 
 }

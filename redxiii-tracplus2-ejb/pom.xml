@@ -73,7 +73,7 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-                        <scope>test</scope>
+			<scope>test</scope>
 		</dependency>
 
 		<!-- Optional, but highly recommended -->
@@ -103,6 +103,14 @@
 			<artifactId>lucene-queries</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.apache.lucene</groupId>
+			<artifactId>lucene-analyzers-common</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.lucene</groupId>
+			<artifactId>lucene-queryparser</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>commons-configuration</groupId>
 			<artifactId>commons-configuration</artifactId>
 		</dependency>
@@ -114,7 +122,7 @@
 			<groupId>commons-dbutils</groupId>
 			<artifactId>commons-dbutils</artifactId>
 		</dependency>
-                <dependency>
+		<dependency>
 			<groupId>commons-codec</groupId>
 			<artifactId>commons-codec</artifactId>
 		</dependency>
@@ -126,10 +134,10 @@
 			<groupId>postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 		</dependency>
-                <dependency>
-	  		<groupId>org.xerial</groupId>
-	  		<artifactId>sqlite-jdbc</artifactId>
-	  	</dependency>
+		<dependency>
+			<groupId>org.xerial</groupId>
+			<artifactId>sqlite-jdbc</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.apache.pdfbox</groupId>
 			<artifactId>pdfbox-lucene</artifactId>
@@ -145,9 +153,9 @@
 		<dependency>
 			<groupId>org.jboss.spec.javax.jms</groupId>
 			<artifactId>jboss-jms-api_1.1_spec</artifactId>
-                        <scope>provided</scope>
+			<scope>provided</scope>
 		</dependency>
-                <dependency>
+		<dependency>
 			<groupId>org.jboss.spec.javax.faces</groupId>
 			<artifactId>jboss-jsf-api_2.1_spec</artifactId>
 			<scope>provided</scope>
@@ -166,7 +174,6 @@
 				</configuration>
 			</plugin>
 		</plugins>
-
 	</build>
 
 	<profiles>

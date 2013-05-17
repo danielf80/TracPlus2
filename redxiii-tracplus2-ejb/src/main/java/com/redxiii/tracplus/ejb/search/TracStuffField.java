@@ -11,7 +11,8 @@ public enum TracStuffField {
 	CONTENT,
 	CONTEXT,
 	TAGS,
-        CC,
+	CC,
+	STATUS,	// Only applies to Tickets
 	;
 
 }

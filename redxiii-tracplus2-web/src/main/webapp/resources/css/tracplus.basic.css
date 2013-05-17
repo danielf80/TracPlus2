@@ -56,3 +56,20 @@ select {
 	width: 160px;
 	height: 90px;
 }
+
+.news-container-div {
+	display: 	none;
+	z-index: 	2;
+	overflow: 	hidden;
+	position: 	absolute;
+	left: 		25%;
+	right: 		25%;
+	top:		25%;
+	background: whitesmoke;
+	opacity:	0.8;
+}
+
+.news-inner-div {
+	border: 	1px solid black;
+	margin: 	10px;
+}

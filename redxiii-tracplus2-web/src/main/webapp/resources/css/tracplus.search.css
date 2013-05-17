@@ -2,10 +2,6 @@
 	background-color: #EFEFEF;
 }
 
-.search-result-panel {
-	padding: 15px;
-}
-
 .search-input-text {
 	font-family: inherit;
 	font-size: 12px;
@@ -45,18 +41,6 @@
 	overflow: hidden;
 }
 
-.search-btn-precise {
-	font-family: inherit;
-	font-weight: bold;
-	color: white;
-	height: 22px;
-	width: 100%;
-	background: transparent;
-	border: 0;
-	position: relative;
-	overflow: hidden;
-}
-
 .search-btn-advanced {
 	font-family: inherit;
 	font-weight: bold;
@@ -69,10 +53,34 @@
 	overflow: hidden;
 }
 
-.search-trac-link {
-    font-size: 14px;
-    color: darkred;
+.search-result-panel {
+	padding: 15px;
 }
+
+.search-result-panel DIV {
+	padding-bottom: 2px;
+}
+
+.search-result-icon {
+	padding:	5px; 
+	width:		20px;
+}
+
+.search-result-header A {
+	font-size: 14px;
+	color: darkred;
+}
+
+.search-result-header IMG {
+	width: 			18px;
+	vertical-align: bottom;
+}
+
+.search-result-header A {
+	font-size: 14px;
+	color: darkred;
+}
+
 
 .search-table-options {
     border-spacing: 1px;

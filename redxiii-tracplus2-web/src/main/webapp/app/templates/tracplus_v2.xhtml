@@ -16,6 +16,16 @@
 	<h:outputStylesheet library="css" name="tipsy.css" />
         
 	<ui:insert name="head"></ui:insert>	
+	
+	<script type="text/javascript">
+	function showReleaseDiv() {
+		document.getElementById("news-info-div").style.display = 'block';
+	}
+
+	function hideReleaseDiv() {
+		document.getElementById("news-info-div").style.display = 'none';
+	}
+	</script>
 </h:head>
 <h:body>
 
@@ -25,8 +35,9 @@
 				<tr style="width: 100%">
 					<td style="width: 250px; border: 1px solid darkslategrey;">#{msg['common.welcome']}: #{appSessionContext.user.name}</td>
 					<td align="right">
-                                            <ui:insert name="app-panel-links">
-                                            </ui:insert>
+						<ui:insert name="app-panel-links">
+						</ui:insert>
+						<h:graphicImage value="/resources/gfx/icon/info.png" onmouseover="showReleaseDiv();" onmouseout="hideReleaseDiv();"/>
 					</td>
 				</tr>
 			</table>
@@ -36,8 +47,8 @@
 		<table style="width: 100%" class="search-main-panel">
 			<tr style="width: 100%">
 				<td>
-                                    <ui:insert name="content-logo">
-                                    </ui:insert>
+					<ui:insert name="content-logo">
+					</ui:insert>
 				</td>
 				<td style="padding-top: 15px; padding-left: 50px; padding-right: 50px;">
 					<ui:insert name="content-header">
@@ -47,8 +58,12 @@
 		</table>
 	</div>
 
-
 	<div id="container">
+	
+		<div id="news-info-div" class="news-container-div">
+			<ui:include src="/news.xhtml" />
+		</div>
+	
 		<ui:insert name="content">
 	
 		</ui:insert>

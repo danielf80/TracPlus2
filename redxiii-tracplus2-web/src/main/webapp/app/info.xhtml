@@ -10,7 +10,7 @@
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js"></script>
 		<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
 		<h:outputStylesheet name="css/jquery.mSimpleSlidebox.css" />
-                <h:outputScript name="js/jquery.mSimpleSlidebox.js" />
+		<h:outputScript name="js/jquery.mSimpleSlidebox.js" />
 		
                 <!-- slidebox function call -->
 		<script type="text/javascript">
@@ -87,6 +87,13 @@
 				</td>
 				<td width="4%"/>
 				<td width="48%" class="info-panel">
+					<b style="font-size: larger;">Indexing process information</b><br/>
+					<ul>
+						<li><b>Number of documents:</b> #{indexingStatistics.indexedDocs}</li>
+						<li><b>Total size:</b> #{indexingStatistics.formattedIndexedBytes}</li>
+						<li><b>Elapsed time:</b> #{indexingStatistics.formattedIndexedTime}</li>
+					</ul>
+					
 					<b style="font-size: larger;">App build information</b><br/>
 				
 					<ul>

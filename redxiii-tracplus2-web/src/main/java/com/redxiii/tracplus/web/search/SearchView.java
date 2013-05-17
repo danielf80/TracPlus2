@@ -1,6 +1,7 @@
 package com.redxiii.tracplus.web.search;
 
 import java.io.Serializable;
+import java.lang.reflect.Proxy;
 import java.net.URLDecoder;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -8,6 +9,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -31,7 +33,8 @@ import com.redxiii.tracplus.ejb.search.query.QueryBuilder;
 import com.redxiii.tracplus.ejb.search.query.SimpleQuerySpec;
 import com.redxiii.tracplus.ejb.util.AppConfiguration;
 import com.redxiii.tracplus.ejb.util.UsageStatistics;
-import com.redxiii.tracplus.web.AppSessionContext;
+import com.redxiii.tracplus.web.context.AppSessionContext;
+import com.redxiii.tracplus.web.util.SearchResultInvocationHandler;
 
 @Named("searchView")
 @SessionScoped
@@ -114,7 +117,6 @@ public class SearchView implements Serializable {
     private FilterPeriodSelection selectedFilterPeriod;
     private SortSelection selectedSort;
     private SearchMethod searchMethod;
-    private Boolean filterCopied;
     private String reportErrorLink;
 
     private int stepTwoSmartSearchResults;
@@ -128,7 +130,6 @@ public class SearchView implements Serializable {
         selectedFilterPeriod = FilterPeriodSelection.all_entries;
         selectedSort = SortSelection.relevance;
         searchMethod = SearchMethod.approximate;
-        filterCopied = Boolean.FALSE;
         stepTwoSmartSearchResults = AppConfiguration.getInstance().getInt("web.search-manager.smart-search.two-step-minimal-results", 0);
     }
 
@@ -158,12 +159,10 @@ public class SearchView implements Serializable {
 
         results.clear();
 
-        logger.info("Searching for {}", searchInfo);
-
         if (ctx != null && ctx.getUser() != null) {
-            logger.info("User: {}", ctx.getUser());
+        	logger.info("Searching for {} by [{}]", searchInfo, ctx.getUser().getName());
         } else {
-            logger.warn("Session context od User not set");
+            logger.warn("Session context of User not set");
             return;
         }
 
@@ -199,16 +198,14 @@ public class SearchView implements Serializable {
                 break;
             case none:
             	break;
+			default:
+				break;
         }
 
         if (!selectedFilterPeriod.equals(FilterPeriodSelection.all_entries)) {
             baseBuilder.enableRecentFilter(selectedFilterPeriod.days);
         }
-        
-        if (filterCopied) {
-            baseBuilder.addStrongRestriction(ctx.getUser().getName(), TracStuffField.CC);
-        }
-        
+                
         @SuppressWarnings("unchecked")
 		QueryBuilder<SimpleQuerySpec> queryBuilder = (QueryBuilder<SimpleQuerySpec>) SerializationUtils.clone(baseBuilder);
         
@@ -238,7 +235,7 @@ public class SearchView implements Serializable {
         }
         
         logger.debug("Searching and sorting...");
-        results.addAll(getSortedResults(resultSet));
+        results.addAll(getTransformedResults(getSortedResults(resultSet)));
         
         if (results.isEmpty()) {
             prepareEmptyResultLink(query.toString());
@@ -295,6 +292,28 @@ public class SearchView implements Serializable {
 
         return sorted;
     }
+    
+	private Set<SearchResult> getTransformedResults(Set<SearchResult> results) {
+    	
+    	Set<SearchResult> transformed = Collections.emptySet();
+    	try {
+    		transformed = new LinkedHashSet<SearchResult>();
+    		
+			for (SearchResult result : results) {
+				SearchResult proxy = (SearchResult) Proxy
+						.newProxyInstance(
+								this.getClass().getClassLoader(), 
+								new Class[]{SearchResult.class}, 
+								new SearchResultInvocationHandler(result, "redirectTo="));
+				
+				transformed.add(proxy);
+			}
+		} catch (IllegalArgumentException e) {
+			logger.error("Error creating proxyInstance", e);
+		} 
+    	
+    	return transformed;
+    }
 
     public String getResultImage(SearchResult result) {
         if (result.getContext().equals("wiki")) {
@@ -345,14 +364,6 @@ public class SearchView implements Serializable {
 
     public void setSelectedSort(SortSelection selectedSort) {
         this.selectedSort = selectedSort;
-    }
-
-    public Boolean getFilterCopied() {
-        return filterCopied;
-    }
-
-    public void setFilterCopied(Boolean filterCopied) {
-        this.filterCopied = filterCopied;
     }
 
     public String getReportErrorLink() {

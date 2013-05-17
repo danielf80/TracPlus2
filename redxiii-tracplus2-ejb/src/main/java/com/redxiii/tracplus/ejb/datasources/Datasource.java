@@ -21,10 +21,13 @@ public interface Datasource {
 
 	List<Integer> getChangeTicketsIds(long changetime);
 
+	List<Integer> getChangeTicketsIds(String user, long changetime);
+	
 	List<RecentWiki> getLastWikiUpdate();
 
 	Wiki getWiki(String name, Number version);
 
 	List<Attachment> getTicketAttachments(long start, long end);
+
 
 }

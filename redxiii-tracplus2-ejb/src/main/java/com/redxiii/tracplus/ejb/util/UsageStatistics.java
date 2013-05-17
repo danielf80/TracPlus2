@@ -42,7 +42,7 @@ public class UsageStatistics {
 	@PostConstruct
 	public void init() {
 	
-                lastIndexUpdate = AppConfiguration.getInstance().getLong("lucene.index-builder.last-update", 0);
+		lastIndexUpdate = AppConfiguration.getInstance().getLong("lucene.index-builder.last-update", 0);
 		File statsFile = new File(AppConfiguration.getServerConfigFolder() + "tracplus2-stats.properties");
 		try {
 			if (statsFile.exists() || statsFile.createNewFile()) {

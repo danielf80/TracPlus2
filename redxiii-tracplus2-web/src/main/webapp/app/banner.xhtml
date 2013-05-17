@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html">
+
+	<ui:repeat value="#{bannerView.banners}" var="item">
+		<table class="banner-table">
+			<tr>
+				<td>
+					<a href="#{request.contextPath}/sfb.jsf?#{item.link}" target="_blank"> 
+						<img src="#{item.imageUrl}" />
+					</a>
+				</td>
+			</tr>
+			<tr>
+				<td><span style="font-weight: bold;">#{item.subject}</span></td>
+			</tr>
+			<tr>
+				<td><span style="font-weight: lighter;">#{item.text}</span></td>
+			</tr>
+		</table>
+	</ui:repeat>
+</ui:composition>

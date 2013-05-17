@@ -6,8 +6,8 @@ public class Attachment implements Serializable, Comparable<Attachment> {
 
 	private static final long serialVersionUID = 1L;
 	
-	private String type;
-	private String id;
+	private String type;	// ticket or wiki
+	private String id;		// ticket Id or wiki Id
 	private String filename;
 	private Integer	size;
 	private Integer time;

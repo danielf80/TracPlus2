@@ -104,6 +104,11 @@ public class TracDSMock implements Datasource {
 	public List<Integer> getChangeTicketsIds(long changetime) {
 		return new ArrayList<Integer>();
 	}
+	
+	@Override
+	public List<Integer> getChangeTicketsIds(String user, long changetime) {
+		return new ArrayList<Integer>();
+	}
 
 	@Override
 	public List<RecentWiki> getLastWikiUpdate() {
