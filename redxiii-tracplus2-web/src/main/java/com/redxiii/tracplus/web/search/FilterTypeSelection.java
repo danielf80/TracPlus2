@@ -8,5 +8,5 @@ public enum FilterTypeSelection {
 	none,
 	ticket,
 	wiki,
-//	attachment
+	attachment
 }

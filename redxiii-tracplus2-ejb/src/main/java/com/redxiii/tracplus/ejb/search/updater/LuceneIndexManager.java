@@ -14,6 +14,7 @@ import javax.inject.Named;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
+import org.apache.lucene.document.FieldType.NumericType;
 import org.apache.lucene.document.LongField;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexReader;
@@ -62,17 +63,38 @@ public class LuceneIndexManager implements Serializable, SearchManager {
         return fieldType;
     }
     
+    private FieldType createFieldTypeNumeric(boolean stored, boolean indexed, NumericType type) {
+    	FieldType fieldType = new FieldType();
+        fieldType.setStored(stored);
+        fieldType.setIndexed(indexed);
+        fieldType.setNumericType(type);
+        fieldType.freeze();
+        
+        return fieldType;
+    }
+    
     public void updateIndex(Collection<TracStuff> stuffs) {
         IndexWriter writer = null;
         try {
             writer = indexFactory.createIndexWriter();
+            if (writer == null) {
+            	for (TracStuff tracStuff : stuffs) {
+            		logger.warn("NOT Indexed: {} owned by {} modified at {}", new Object[]{
+                            tracStuff.getId(), 
+                            tracStuff.getAuthor(),
+                            formatter.print(tracStuff.getModifiedTimestamp()) });
+            	}
+            	return;
+            }
 
             final FieldType fIndexedStored = createFieldType(true, true);
             final FieldType fIndexed = createFieldType(false, true);
             final FieldType fStored = createFieldType(true, false);
             
+            final FieldType fNumIndexed = createFieldTypeNumeric(false, true, NumericType.LONG);
+            
             for (TracStuff tracStuff : stuffs) {
-                logger.info("Indexing: {} owned by {} modified at {}", new Object[]{
+                logger.trace("Indexing: {} owned by {} modified at {}", new Object[]{
                         tracStuff.getId(), 
                         tracStuff.getAuthor(),
                         formatter.print(tracStuff.getModifiedTimestamp()) });
@@ -87,7 +109,7 @@ public class LuceneIndexManager implements Serializable, SearchManager {
                 
                 // Indexed data
                 doc.add(new Field(TracStuffField.CONTENT.toString(), tracStuff.getContent(), fIndexed));
-                doc.add(new LongField(TracStuffField.MODIFIED_TIMESTAMP.toString(), tracStuff.getModifiedTimestamp(), fIndexed));
+                doc.add(new LongField(TracStuffField.MODIFIED_TIMESTAMP.toString(), tracStuff.getModifiedTimestamp(), fNumIndexed));
                 
                 //Storage data
                 doc.add(new Field(TracStuffField.AUTHOR.toString(), tracStuff.getAuthor(), fStored));

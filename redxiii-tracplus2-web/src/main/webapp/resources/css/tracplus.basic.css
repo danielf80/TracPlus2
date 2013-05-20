@@ -58,7 +58,6 @@ select {
 }
 
 .news-container-div {
-	display: 	none;
 	z-index: 	2;
 	overflow: 	hidden;
 	position: 	absolute;
@@ -70,6 +69,6 @@ select {
 }
 
 .news-inner-div {
-	border: 	1px solid black;
+	border: 	1px solid darkred;
 	margin: 	10px;
 }

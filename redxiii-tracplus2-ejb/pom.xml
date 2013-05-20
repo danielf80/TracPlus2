@@ -139,10 +139,6 @@
 			<artifactId>sqlite-jdbc</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.pdfbox</groupId>
-			<artifactId>pdfbox-lucene</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 		</dependency>
@@ -171,6 +167,11 @@
 				<configuration>
 					<!-- Tell Maven we are using EJB 3.1 -->
 					<ejbVersion>3.1</ejbVersion>
+					<archive>
+						<manifestEntries>
+							<Dependencies>org.slf4j, org.joda.time, com.google.guava</Dependencies>
+						</manifestEntries>
+					</archive>
 				</configuration>
 			</plugin>
 		</plugins>

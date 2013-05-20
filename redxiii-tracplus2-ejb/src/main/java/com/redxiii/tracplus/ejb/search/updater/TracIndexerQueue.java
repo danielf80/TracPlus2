@@ -37,7 +37,7 @@ import com.redxiii.tracplus.ejb.util.IndexingStatistics;
 		@ActivationConfigProperty(propertyName = "acknowledgeMode", propertyValue = "Auto-acknowledge"),
 		@ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
 		@ActivationConfigProperty(propertyName = "destination", propertyValue = "queue.com.redxiii.tracplus2"),
-		@ActivationConfigProperty(propertyName = "maxSession", propertyValue = "1") })
+		@ActivationConfigProperty(propertyName = "maxSession", propertyValue = "10") })
 public class TracIndexerQueue implements MessageListener {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -93,7 +93,7 @@ public class TracIndexerQueue implements MessageListener {
 					handleAttachment(mapMessage);
 					indexingStatistics.updateIndexedEndTime();
 				}
-				
+				logger.info("Message handling done");
 			}
 		} catch (JMSException e) {
 			e.printStackTrace();
@@ -114,7 +114,6 @@ public class TracIndexerQueue implements MessageListener {
 			String name = mapMessage.getString("name-" + c);
 			int version = mapMessage.getInt("version-" + c);
 			
-			logger.info("Loading wiki page: '{}' version '{}'", name, version);
 			Wiki wiki = datasource.getWiki(name, version);
 			
 			if (indexFilter.isAllowed(wiki)) {
@@ -124,6 +123,8 @@ public class TracIndexerQueue implements MessageListener {
 
 		logger.info("Updating index with {} wiki stuffs", stuffs.size());
 		luceneIndexManager.updateIndex(stuffs);
+		logger.info("Updating index done");
+		
 		logIndexedWikis(stuffs);
 	}
 	

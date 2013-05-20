@@ -5,6 +5,10 @@ import java.io.IOException;
 import java.io.Serializable;
 
 import javax.annotation.PostConstruct;
+import javax.ejb.ConcurrencyManagement;
+import javax.ejb.ConcurrencyManagementType;
+import javax.ejb.Lock;
+import javax.ejb.LockType;
 import javax.ejb.Singleton;
 import javax.inject.Named;
 
@@ -33,6 +37,7 @@ import com.redxiii.tracplus.ejb.util.AppConfiguration;
  */
 @Named
 @Singleton
+@ConcurrencyManagement(ConcurrencyManagementType.CONTAINER)
 public class LuceneIndexFactory implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -42,10 +47,14 @@ public class LuceneIndexFactory implements Serializable {
 	private Version version;
 	private Directory directory;
 	private StandardAnalyzer analyzer;
+	private IndexWriterConfig writerConfig;
+	private long writeLockTimeout = 30 * 1000;
+	private long writeLockRetries = 5;
 	
 	@PostConstruct
     public void init() {
 		
+		logger.info("Creating index factory");
 		try {
 			File path = new File(AppConfiguration.getRootConfigFolder() + "/wiki-lucene-index/");
 			
@@ -56,34 +65,53 @@ public class LuceneIndexFactory implements Serializable {
 			this.version = Version.LUCENE_43;
 			this.directory = new SimpleFSDirectory(path);
 			this.analyzer = new StandardAnalyzer(version);
+			this.writerConfig = new IndexWriterConfig(version, analyzer);
 			
+			this.writerConfig.setWriteLockTimeout(writeLockTimeout);
 		} catch (IOException e) {
 			logger.error("Error loading lucene index", e);
 		}
 	}
 	
+	@Lock(LockType.READ)
 	public Directory getDirectory() {
 		return directory;
 	}
 	
+	@Lock(LockType.READ)
 	public Version getVersion() {
 		return version;
 	}
 	
+	@Lock(LockType.READ)
 	public IndexWriter createIndexWriter() {
-        try {
-            return new IndexWriter(directory, new IndexWriterConfig(version, analyzer));
-        } catch (CorruptIndexException e) {
-            logger.error("Error updating Lucene index", e);
-        } catch (LockObtainFailedException e) {
-            logger.error("Error updating Lucene index", e);
-        } catch (IOException e) {
-            logger.error("Error updating Lucene index", e);
-        }
+		
+		for (int c = 0; c < writeLockRetries; c++) {
+	        try {
+	        	logger.info("Creating index writer");
+	            return new IndexWriter(directory, writerConfig);
+	            
+	        } catch (LockObtainFailedException e) {
+	        	if (c < writeLockRetries)
+	        		logger.warn("Error obtain lock: {}", e.getMessage());
+	        	else
+	        		logger.error("Error creating Lucene index writer", e);
+	        	
+	        	
+	        } catch (CorruptIndexException e) {
+	            logger.error("Error creating Lucene index writer", e);
+	            return null;
+	        } catch (IOException e) {
+	        	logger.error("Error creating Lucene index writer", e);
+	        	return null;
+	        }
+		}
         return null;
     }
 	
+	@Lock(LockType.READ)
 	public IndexReader createIndexReader() {
+		logger.info("Creating index reader");
 		IndexReader reader = null;
 		try {
 			reader = DirectoryReader.open(directory);
@@ -93,7 +121,9 @@ public class LuceneIndexFactory implements Serializable {
 		return reader;
 	}
 	
+	@Lock(LockType.READ)
 	public Query createQuery(String field, String queryTerm) {
+		logger.info("Creating query");
 		try {
 			QueryParser query = new QueryParser(version, field, analyzer);
 			return query.parse(queryTerm);

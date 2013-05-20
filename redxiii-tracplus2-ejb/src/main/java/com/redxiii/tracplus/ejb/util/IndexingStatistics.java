@@ -1,5 +1,8 @@
 package com.redxiii.tracplus.ejb.util;
 
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -13,24 +16,46 @@ public class IndexingStatistics {
 	private long indexedBytes;
 	private long indexedDocs;
 
+	private final Lock writeLock = new ReentrantLock();
+	
 	@Inject
 	private Formatter formatter;
 	
 	public void resetIndexedStartTime() {
-		indexingStart = System.currentTimeMillis();
-		indexingEnd = indexingStart + 1; 
+		writeLock.lock();
+		try {
+			indexingStart = System.currentTimeMillis();
+			indexingEnd = indexingStart + 1;
+		} finally {
+			writeLock.unlock();
+		}
 	}
 	public void updateIndexedEndTime() {
-		indexingEnd = System.currentTimeMillis();
+		writeLock.lock();
+		try {
+			indexingEnd = System.currentTimeMillis();
+		} finally {
+			writeLock.unlock();
+		}
 	}
 	
 	public void newIndexedDoc(long bytes) {
-		indexedBytes += bytes;
-		indexedDocs++;
+		writeLock.lock();
+		try {
+			indexedBytes += bytes;
+			indexedDocs++;
+		} finally {
+			writeLock.unlock();
+		}
 	}
 	public void resetIndexedDocs() {
-		indexedBytes = 0;
-		indexedDocs = 0;
+		writeLock.lock();
+		try {
+			indexedBytes = 0;
+			indexedDocs = 0;
+		} finally {
+			writeLock.unlock();
+		}
 	}
 	public long getIndexedBytes() {
 		return indexedBytes;

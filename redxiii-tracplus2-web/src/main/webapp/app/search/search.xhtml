@@ -7,11 +7,12 @@
 
 	<ui:define name="head">
 		<h:outputScript library="js" name="search-basic.js" />
+		
 	</ui:define>
 
     <ui:define name="app-panel-links">
         <h:outputLink value="#{request.contextPath}/app/info.jsf">
-            <h:graphicImage value="/resources/gfx/icon/info.png" />
+            <h:graphicImage value="/resources/gfx/icon/info-2.png" />
         </h:outputLink>
     </ui:define>
 
@@ -20,6 +21,7 @@
     </ui:define>
 
     <ui:define name="content-header">
+
         <script type='text/javascript'>
             $(function() {
                 $('#searchAction-default-div').tipsy();
@@ -99,6 +101,11 @@
         <div class="search-result-panel">
 
             <ui:fragment rendered="#{not empty searchInfo.interpretedQuery}">
+            
+            	<script type='text/javascript'>
+	    			$('#news-info-div').hide();
+	    		</script>
+            
                 <table>
                     <tr>
                         <td>

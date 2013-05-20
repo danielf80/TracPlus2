@@ -4,7 +4,14 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:h="http://java.sun.com/jsf/html">
 	
+	<script type='text/javascript'>
+		setTimeout(function() {
+		    $('#news-info-div').fadeOut('slow');
+		}, 10000);
+	</script>
+    		
 	<div class="news-inner-div">
+		<h:graphicImage style="float: right; padding: 5px;" value="/resources/gfx/icon/news-0.png"/>
 		<ul>
 			<ui:repeat var="item" value="#{newsView.newsList}">
 				<li>#{item}</li>

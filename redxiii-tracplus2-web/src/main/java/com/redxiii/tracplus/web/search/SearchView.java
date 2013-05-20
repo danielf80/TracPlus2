@@ -122,7 +122,14 @@ public class SearchView implements Serializable {
     private int stepTwoSmartSearchResults;
     
     public SearchView() {
-        filterTypeSelections = Collections.unmodifiableList(Arrays.asList(FilterTypeSelection.values()));
+        filterTypeSelections = new ArrayList<FilterTypeSelection>(); 
+        if (AppConfiguration.getInstance().getBoolean("lucene.index-builder.update.wiki", false))
+        	filterTypeSelections.add(FilterTypeSelection.wiki);
+        if (AppConfiguration.getInstance().getBoolean("lucene.index-builder.update.ticket", false))
+        	filterTypeSelections.add(FilterTypeSelection.ticket);
+        if (AppConfiguration.getInstance().getBoolean("lucene.index-builder.update.attachments", false))
+        	filterTypeSelections.add(FilterTypeSelection.attachment);
+        
         filterPeriodSelections = Collections.unmodifiableList(Arrays.asList(FilterPeriodSelection.values()));
         sortSelections = Collections.unmodifiableList(Arrays.asList(SortSelection.values()));
 

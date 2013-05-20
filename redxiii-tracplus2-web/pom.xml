@@ -24,24 +24,21 @@
 			<scope>provided</scope>
 		</dependency>
 
-<!-- Import the CDI API, we use provided scope as the API is included in 
-			JBoss AS 7 -->
+		<!-- Import the CDI API, we use provided scope as the API is included in JBoss AS 7 -->
 		<dependency>
 			<groupId>javax.enterprise</groupId>
 			<artifactId>cdi-api</artifactId>
 			<scope>provided</scope>
 		</dependency>
 		
-		<!-- Import the JAX-RS API, we use provided scope as the API is included 
-			in JBoss AS 7 -->
+		<!-- Import the JAX-RS API, we use provided scope as the API is included in JBoss AS 7 -->
 		<dependency>
 			<groupId>org.jboss.spec.javax.ws.rs</groupId>
 			<artifactId>jboss-jaxrs-api_1.1_spec</artifactId>
 			<scope>provided</scope>
 		</dependency>
 
-		<!-- Import the JSF API, we use provided scope as the API is included in 
-			JBoss AS 7 -->
+		<!-- Import the JSF API, we use provided scope as the API is included in JBoss AS 7 -->
 		<dependency>
 			<groupId>org.jboss.spec.javax.faces</groupId>
 			<artifactId>jboss-jsf-api_2.1_spec</artifactId>
@@ -54,8 +51,7 @@
 			<scope>provided</scope>
 		</dependency>
 
-		<!-- Import the JPA API, we use provided scope as the API is included in 
-			JBoss AS 7 -->
+		<!-- Import the JPA API, we use provided scope as the API is included in JBoss AS 7 -->
 		<dependency>
 			<groupId>org.hibernate.javax.persistence</groupId>
 			<artifactId>hibernate-jpa-2.0-api</artifactId>
@@ -80,11 +76,51 @@
 			<scope>provided</scope>
 		</dependency>
 
-
+		<dependency>
+			<groupId>commons-configuration</groupId>
+			<artifactId>commons-configuration</artifactId>
+			<exclusions>
+				<exclusion>
+					<artifactId>commons-logging</artifactId>
+					<groupId>commons-logging</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		
 		<dependency>
 			<groupId>org.openid4java</groupId>
 			<artifactId>openid4java-full</artifactId>
 			<version>0.9.5</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>commons-httpclient</artifactId>
+					<groupId>commons-httpclient</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>commons-logging</artifactId>
+					<groupId>commons-logging</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>mail</artifactId>
+					<groupId>javax.mail</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>jaxen</artifactId>
+					<groupId>jaxen</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>xalan</artifactId>
+					<groupId>xalan</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>xercesImpl</artifactId>
+					<groupId>xerces</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>xmlsec</artifactId>
+					<groupId>xml-security</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		
 	</dependencies>
@@ -98,6 +134,11 @@
 				<configuration>
 					<!-- Java EE 6 doesn't require web.xml, Maven needs to catch up! -->
 					<failOnMissingWebXml>false</failOnMissingWebXml>
+					<archive>
+						<manifestEntries>
+							<Dependencies>javax.mail.api, org.apache.commons.logging, org.apache.httpcomponents, org.jaxen, org.apache.xalan, org.apache.xerces, org.apache.santuario.xmlsec</Dependencies>
+						</manifestEntries>
+					</archive>
 				</configuration>
 			</plugin>
 		</plugins>

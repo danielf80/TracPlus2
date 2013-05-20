@@ -34,7 +34,7 @@ public class BannerView implements Serializable {
 	public void init() {
 		banners = new ArrayList<Banner>();
 		
-		
+		@SuppressWarnings("unchecked")
 		List<HierarchicalConfiguration> packNodes = BannerConfig.getInstance().configurationsAt("banner");
 		for (HierarchicalConfiguration packNode : packNodes) {
 			
