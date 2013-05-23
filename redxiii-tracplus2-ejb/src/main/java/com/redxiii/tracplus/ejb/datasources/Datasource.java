@@ -29,5 +29,6 @@ public interface Datasource {
 
 	List<Attachment> getTicketAttachments(long start, long end);
 
+	List<Attachment> getWikiAttachments(long start, long end);
 
 }

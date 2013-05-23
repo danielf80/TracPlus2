@@ -1,14 +1,16 @@
 package com.redxiii.tracplus.ejb.search.query;
 
-import com.redxiii.tracplus.ejb.search.TracStuffField;
-import com.redxiii.tracplus.ejb.util.AppConfiguration;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+
 import org.apache.commons.configuration.Configuration;
+
+import com.redxiii.tracplus.ejb.search.TracStuffField;
+import com.redxiii.tracplus.ejb.util.AppConfiguration;
 
 public class QueryBuilder<T> implements Serializable {
 
@@ -32,6 +34,14 @@ public class QueryBuilder<T> implements Serializable {
 
     public static QueryBuilder<SimpleQuerySpec> buildSimpleQuery() {
         return new QueryBuilder<SimpleQuerySpec>();
+    }
+    
+    public QueryBuilder<SimpleQuerySpec> clone() {
+    	QueryBuilder<SimpleQuerySpec> clone = QueryBuilder.buildSimpleQuery();
+    	
+    	clone.query = this.query.clone();
+    	
+    	return clone;
     }
 
     public QueryBuilder<T> setCustomQueryText(String text) {
@@ -115,6 +125,17 @@ class BasicQuery implements SimpleQuerySpec, Serializable {
 
     public String getLuceneQuery() {
         return luceneQuery;
+    }
+    
+    public BasicQuery clone() {
+    	BasicQuery clone = new BasicQuery();
+    	
+    	clone.maxHits = this.maxHits;
+    	clone.luceneQuery = this.luceneQuery;
+    	clone.filterRecentDays = this.filterRecentDays;
+    	clone.restrictions.addAll(this.restrictions);
+    	
+    	return clone;
     }
 
     public int getMaxHits() {

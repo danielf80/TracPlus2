@@ -1,6 +1,7 @@
 package com.redxiii.tracplus.web.auth;
 
 import java.io.IOException;
+import java.security.Principal;
 import java.util.List;
 
 import javax.enterprise.context.Dependent;
@@ -26,15 +27,12 @@ import org.openid4java.message.ParameterList;
 import org.openid4java.message.ax.AxMessage;
 import org.openid4java.message.ax.FetchRequest;
 import org.openid4java.message.ax.FetchResponse;
-import org.openid4java.server.RealmVerifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.redxiii.tracplus.ejb.entity.User;
 import com.redxiii.tracplus.ejb.util.AppConfiguration;
 import com.redxiii.tracplus.web.context.AppSessionContext;
-
-import java.security.Principal;
 
 @Dependent
 @WebServlet(name = "Authentication", urlPatterns = {"/auth.jsf"})
@@ -59,11 +57,11 @@ public class AuthServlet extends HttpServlet {
         allowedDomain = AppConfiguration.getInstance().getString("web.security.domain");
 
         if (googleAuthentication) {
-            RealmVerifier realmVerifier = new RealmVerifier(true);
-            realmVerifier.setEnforceRpId(false);
+//            RealmVerifier realmVerifier = new RealmVerifier(true, new YadisResolver(new HttpFetcherFactory()));
+//            realmVerifier.setEnforceRpId(false);
 
             manager = new ConsumerManager();
-            manager.setRealmVerifier(realmVerifier);
+//            manager.setRealmVerifier(realmVerifier);
         }
     }
 

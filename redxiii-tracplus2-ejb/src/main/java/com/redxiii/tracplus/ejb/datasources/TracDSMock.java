@@ -143,5 +143,23 @@ public class TracDSMock implements Datasource {
 		}
 		return attachments;
 	}
+	
+	@Override
+	public List<Attachment> getWikiAttachments(long start, long end) {
+		List<Attachment> attachments = new ArrayList<Attachment>();
+		{
+			Attachment attachment = new Attachment();
+			attachment.setAuthor("dfilgueiras");
+			attachment.setDescription("Abbie Simpson");
+			attachment.setFilename("Oracle-JavaEE6-Tutorial-July-2012.pdf");
+			attachment.setSize(1000);
+			attachment.setTime(1346036400);
+			attachment.setId("1");
+			attachment.setType("ticket");
+			
+			attachments.add(attachment);
+		}
+		return attachments;
+	}
 
 }

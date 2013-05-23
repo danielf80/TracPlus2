@@ -1,6 +1,7 @@
 package com.redxiii.tracplus.ejb.datasources;
 
 import com.redxiii.tracplus.ejb.entity.Attachment;
+import com.redxiii.tracplus.ejb.entity.TicketAttachment;
 import com.redxiii.tracplus.ejb.entity.Wiki;
 import com.redxiii.tracplus.ejb.util.AppConfiguration;
 import java.sql.Connection;
@@ -156,7 +157,17 @@ public class TracDS implements Datasource {
 	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public List<Attachment> getTicketAttachments(long start, long end) {
-		return (List) access.executeListBeanQuery("SELECT * FROM attachment WHERE time BETWEEN ? AND ?",
+		return (List) access.executeListBeanQuery(
+				"SELECT attachment.*, ticket.type as ticketType, ticket.component as component, ticket.milestone as milestone, ticket.status as status" +
+				" FROM attachment inner join ticket on (attachment.id = cast(ticket.id as text))" +
+				" WHERE attachment.type = 'ticket' and attachment.time BETWEEN ? AND ?",
+				TicketAttachment.class, start, end);
+	}
+	
+	@Override
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public List<Attachment> getWikiAttachments(long start, long end) {
+		return (List) access.executeListBeanQuery("SELECT * FROM attachment WHERE time BETWEEN ? AND ? and type = 'wiki'",
 				Attachment.class, start, end);
 	}
 }

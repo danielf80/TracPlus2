@@ -116,6 +116,10 @@ public class Attachment implements Serializable, Comparable<Attachment> {
 	public void setIpnr(String ipnr) {
 		this.ipnr = ipnr;
 	}
-	
-	
+
+	@Override
+	public String toString() {
+		return "Attachment [type=" + type + ", id=" + id + ", filename="
+				+ filename + "]";
+	}
 }

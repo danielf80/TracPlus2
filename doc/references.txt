@@ -12,3 +12,7 @@ Glassfish:
 
  JSF 2.x
   * Page Params and Actions: http://mkblog.exadel.com/2010/07/learning-jsf2-page-params-and-page-actions/
+  
+ Classloading (manifest.mf)
+  * https://docs.jboss.org/author/display/AS7/Class+Loading+in+AS7
+  * https://docs.jboss.org/author/display/MODULES/Module+names

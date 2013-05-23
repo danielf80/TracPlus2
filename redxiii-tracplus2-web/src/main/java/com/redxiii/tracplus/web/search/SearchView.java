@@ -20,7 +20,6 @@ import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.apache.commons.lang.SerializationUtils;
 import org.apache.lucene.search.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,7 +121,9 @@ public class SearchView implements Serializable {
     private int stepTwoSmartSearchResults;
     
     public SearchView() {
-        filterTypeSelections = new ArrayList<FilterTypeSelection>(); 
+        filterTypeSelections = new ArrayList<FilterTypeSelection>();
+        filterTypeSelections.add(FilterTypeSelection.none);
+        
         if (AppConfiguration.getInstance().getBoolean("lucene.index-builder.update.wiki", false))
         	filterTypeSelections.add(FilterTypeSelection.wiki);
         if (AppConfiguration.getInstance().getBoolean("lucene.index-builder.update.ticket", false))
@@ -213,8 +214,7 @@ public class SearchView implements Serializable {
             baseBuilder.enableRecentFilter(selectedFilterPeriod.days);
         }
                 
-        @SuppressWarnings("unchecked")
-		QueryBuilder<SimpleQuerySpec> queryBuilder = (QueryBuilder<SimpleQuerySpec>) SerializationUtils.clone(baseBuilder);
+		QueryBuilder<SimpleQuerySpec> queryBuilder = baseBuilder.clone();
         
         switch (searchMethod) {
             case advanced:

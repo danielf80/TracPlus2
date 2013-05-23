@@ -86,39 +86,27 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+		</dependency>
+
 		<dependency>
 			<groupId>org.openid4java</groupId>
-			<artifactId>openid4java-full</artifactId>
-			<version>0.9.5</version>
+			<artifactId>openid4java</artifactId>
+			<version>0.9.7</version>
 			<exclusions>
-				<exclusion>
-					<artifactId>commons-httpclient</artifactId>
-					<groupId>commons-httpclient</groupId>
-				</exclusion>
 				<exclusion>
 					<artifactId>commons-logging</artifactId>
 					<groupId>commons-logging</groupId>
 				</exclusion>
 				<exclusion>
-					<artifactId>mail</artifactId>
-					<groupId>javax.mail</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>jaxen</artifactId>
-					<groupId>jaxen</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>xalan</artifactId>
-					<groupId>xalan</groupId>
+					<artifactId>httpclient</artifactId>
+					<groupId>org.apache.httpcomponents</groupId>
 				</exclusion>
 				<exclusion>
 					<artifactId>xercesImpl</artifactId>
 					<groupId>xerces</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>xmlsec</artifactId>
-					<groupId>xml-security</groupId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -136,7 +124,7 @@
 					<failOnMissingWebXml>false</failOnMissingWebXml>
 					<archive>
 						<manifestEntries>
-							<Dependencies>javax.mail.api, org.apache.commons.logging, org.apache.httpcomponents, org.jaxen, org.apache.xalan, org.apache.xerces, org.apache.santuario.xmlsec</Dependencies>
+							<Dependencies>javax.mail.api, org.apache.commons.logging, org.apache.httpcomponents, org.apache.commons.codec, org.jaxen, org.apache.xalan, org.apache.xerces, org.apache.santuario.xmlsec, org.apache.commons.configuration</Dependencies>
 						</manifestEntries>
 					</archive>
 				</configuration>

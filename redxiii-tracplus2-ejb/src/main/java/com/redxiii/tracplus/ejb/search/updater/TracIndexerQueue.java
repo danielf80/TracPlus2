@@ -186,8 +186,19 @@ public class TracIndexerQueue implements MessageListener {
 		List<TracStuff> stuffs = new ArrayList<TracStuff>();
 //		String path = AppConfiguration.getInstance().getString("trac.home-dir.attachments");
 		
-		logger.info("Loading attachments details between '{}' and '{}'", formatter.print(rangeStart), formatter.print(rangeEnd));
-		List<Attachment> attachments = datasource.getTicketAttachments(rangeStart, rangeEnd);
+		List<Attachment> attachments = new ArrayList<Attachment>();
+		{
+			logger.info("Loading ticket attachments details between '{}' and '{}'", formatter.print(rangeStart), formatter.print(rangeEnd));
+			List<Attachment> tAttachments = datasource.getTicketAttachments(rangeStart, rangeEnd);
+		
+			attachments.addAll(tAttachments);
+		}
+		{
+			logger.info("Loading wiki attachments details between '{}' and '{}'", formatter.print(rangeStart), formatter.print(rangeEnd));
+			List<Attachment> wAttachments = datasource.getWikiAttachments(rangeStart, rangeEnd);
+		
+			attachments.addAll(wAttachments);
+		}
 		
 		logger.info("Handling '{}' attachments", attachments.size());
 		for (Attachment attachment : attachments) {

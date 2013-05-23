@@ -12,7 +12,7 @@
 	<artifactId>redxiii-tracplus2-ear</artifactId>
 	<packaging>ear</packaging>
 
-	<name>TracPlus-2 EAR module</name>
+	<name>TracPlus-2 Enterprise</name>
 
 	<scm>
 		<connection>scm:git:git://github.com/danielf80/TracPlus2.git</connection>
@@ -37,6 +37,35 @@
 	<build>
 		<finalName>redxiii-tracplus</finalName>
 		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>buildnumber-maven-plugin</artifactId>
+				<version>1.2</version>
+				<executions>
+					<execution>
+						<id>buildnumber-updater</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>create</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			
+			<plugin>
+				<groupId>com.keyboardsamurais.maven</groupId>
+				<artifactId>maven-timestamp-plugin</artifactId>
+				<version>1.0</version>
+				<executions>
+					<execution>
+						<id>buildtime</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>create</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

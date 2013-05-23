@@ -174,7 +174,7 @@ public class TracIndexer {
 	
 	private void requestWikiIndexing(Session session, MessageProducer producer) throws JMSException {
 		
-                int maxFetch = AppConfiguration.getInstance().getInt("lucene.index-builder.batch-size.wiki", 25);
+		int maxFetch = AppConfiguration.getInstance().getInt("lucene.index-builder.batch-size.wiki", 25);
                     
 		logger.info("Getting last wiki's update...");
 		List<RecentWiki> recent = datasource.getLastWikiUpdate();

@@ -39,8 +39,12 @@ public class ManifestReader {
 			Iterator<String> iterator = configuration.getKeys();
 			while (iterator.hasNext()) {
 				String key = iterator.next();
-				keys.add(key);
-				properties.put(key, configuration.getString(key));
+				if (key.matches("^[\\w\\-\\d]+")) {
+					keys.add(key);
+					properties.put(key, configuration.getString(key));
+				} else {
+					logger.warn("Manifest line/key discarted: " + key);
+				}
 			}
 		}
 	}
@@ -64,7 +68,7 @@ public class ManifestReader {
 						logger.info("SourceLocation: {}", location);
 						
 						// Glassfish: ... domain1/applications/redxiii-tracplus2/redxiii-tracplus2-web_war/WEB-INF/classes/com/redxiii/tracplus/web/util/ManifestReader.class
-						int earFolderIndex = location.indexOf("/", location.indexOf("redxiii-tracplus2"));
+						int earFolderIndex = location.indexOf("/", location.indexOf("redxiii-tracplus.ear"));
 						
 						String earFolder = location.substring(0, earFolderIndex);
 						logger.info("earFolder: {}", earFolder);
