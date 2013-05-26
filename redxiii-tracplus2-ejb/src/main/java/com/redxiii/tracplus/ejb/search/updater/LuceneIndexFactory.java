@@ -12,6 +12,7 @@ import javax.ejb.LockType;
 import javax.ejb.Singleton;
 import javax.inject.Named;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.DirectoryReader;
@@ -23,6 +24,7 @@ import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.LockObtainFailedException;
+import org.apache.lucene.store.NIOFSDirectory;
 import org.apache.lucene.store.SimpleFSDirectory;
 import org.apache.lucene.util.Version;
 import org.slf4j.Logger;
@@ -62,8 +64,14 @@ public class LuceneIndexFactory implements Serializable {
 			    path.createNewFile();
 			}
 			
+			if (StringUtils.containsIgnoreCase( System.getProperty("os.name"), "windows") ) {
+				logger.debug("Starting Simple-FS directory");
+				this.directory = new SimpleFSDirectory(path);
+			} else {
+				logger.debug("Starting NIO-FS directory");
+				this.directory = new NIOFSDirectory(path);
+			}
 			this.version = Version.LUCENE_43;
-			this.directory = new SimpleFSDirectory(path);
 			this.analyzer = new StandardAnalyzer(version);
 			this.writerConfig = new IndexWriterConfig(version, analyzer);
 			
@@ -94,10 +102,6 @@ public class LuceneIndexFactory implements Serializable {
 	        } catch (LockObtainFailedException e) {
 	        	if (c < writeLockRetries)
 	        		logger.warn("Error obtain lock: {}", e.getMessage());
-	        	else
-	        		logger.error("Error creating Lucene index writer", e);
-	        	
-	        	
 	        } catch (CorruptIndexException e) {
 	            logger.error("Error creating Lucene index writer", e);
 	            return null;
@@ -106,6 +110,7 @@ public class LuceneIndexFactory implements Serializable {
 	        	return null;
 	        }
 		}
+		logger.error("Error creating Lucene index writer");
         return null;
     }
 	

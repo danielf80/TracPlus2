@@ -2,6 +2,10 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
+	<properties>
+		<maven.build.timestamp.format>yyyy-MM-dd HH.mm</maven.build.timestamp.format>
+	</properties>
+
 	<parent>
 		<artifactId>redxiii-tracplus2</artifactId>
 		<groupId>com.redxiii.tracplus</groupId>
@@ -43,28 +47,16 @@
 				<version>1.2</version>
 				<executions>
 					<execution>
-						<id>buildnumber-updater</id>
-						<phase>prepare-package</phase>
+						<phase>validate</phase>
 						<goals>
 							<goal>create</goal>
 						</goals>
 					</execution>
 				</executions>
-			</plugin>
-			
-			<plugin>
-				<groupId>com.keyboardsamurais.maven</groupId>
-				<artifactId>maven-timestamp-plugin</artifactId>
-				<version>1.0</version>
-				<executions>
-					<execution>
-						<id>buildtime</id>
-						<phase>prepare-package</phase>
-						<goals>
-							<goal>create</goal>
-						</goals>
-					</execution>
-				</executions>
+				<configuration>
+					<doCheck>false</doCheck>
+					<doUpdate>false</doUpdate>
+				</configuration>
 			</plugin>
 
 			<plugin>
@@ -93,9 +85,11 @@
 							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
 						</manifest>
 						<manifestEntries>
-							<Dependencies>org.slf4j, org.joda.time, com.google.guava, org.apache.commons.configuration, org.apache.commons.lang, org.apache.commons.codec, org.apache.commons.io</Dependencies>
+							<Dependencies>org.slf4j, org.joda.time, com.google.guava,
+								org.apache.commons.configuration, org.apache.commons.lang,
+								org.apache.commons.codec, org.apache.commons.io</Dependencies>
 							<SCM-Revision>${buildNumber}</SCM-Revision>
-							<Build-TimeStamp>${buildtime}</Build-TimeStamp>
+							<Build-TimeStamp>${maven.build.timestamp}</Build-TimeStamp>
 						</manifestEntries>
 					</archive>
 				</configuration>
@@ -109,7 +103,7 @@
 				</configuration>
 			</plugin>
 		</plugins>
-		
+
 	</build>
 
 	<profiles>

@@ -3,7 +3,10 @@ package com.redxiii.tracplus.web.info;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.annotation.PostConstruct;
@@ -57,6 +60,49 @@ public class InfoView implements Serializable {
 			counts.add(new SearchCount(entry.getKey(), Integer.toString(entry.getValue())));
 		}
 		return counts;
+	}
+	
+	public String getUsersStatsGraph() {
+		
+		Map<String, Integer> stats = new HashMap<String, Integer>( statistics.getSearchsPerUser() );
+		Map<String, Integer> statsGraph = new LinkedHashMap<String, Integer>();
+		
+		int iterations = Math.min(7, stats.size());
+		
+		for (int c = 0; c < iterations; c++) {
+			int maxCount = 0;
+			String selected = null;
+			
+			for (Entry<String, Integer> entry : stats.entrySet()) {
+				if (entry.getValue().intValue() > maxCount) {
+					selected = entry.getKey();
+					maxCount = entry.getValue().intValue();
+				}
+			}
+			
+			statsGraph.put(selected, stats.get(selected));
+			
+			stats.remove(selected);
+		}
+		
+		int maxCount = 0;
+		for (Entry<String, Integer> entry : stats.entrySet()) {
+			maxCount += entry.getValue().intValue();
+		}
+		statsGraph.put("outros", maxCount);
+		
+		StringBuilder builder = new StringBuilder();
+		for (Entry<String, Integer> entry : statsGraph.entrySet()) {
+			builder
+				.append("['")
+				.append(entry.getKey())
+				.append("', ")
+				.append(entry.getValue())
+				.append("],");
+		}
+		builder.setLength( builder.length() - 1 );
+		
+		return builder.toString();
 	}
 
 	public List<SearchCount> getPeriodStats() {
