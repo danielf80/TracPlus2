@@ -9,12 +9,12 @@ import com.redxiii.tracplus.ejb.search.SearchResult;
 
 public class SearchResultInvocationHandler implements InvocationHandler {
 
+	private final int id;
 	private final SearchResult searchResult;
-	private final String replaceUrl;
 	
-	public SearchResultInvocationHandler(SearchResult searchResult, String replaceUrl) {
+	public SearchResultInvocationHandler(int id, SearchResult searchResult) {
+		this.id = id;
 		this.searchResult = searchResult;
-		this.replaceUrl = replaceUrl;
 	}
 	
 	@Override
@@ -23,7 +23,13 @@ public class SearchResultInvocationHandler implements InvocationHandler {
 		Object result = method.invoke(searchResult, args);
 		if (method.getName().endsWith("getUrl")) {
 			String baseUrl = (String) result;
-			result = replaceUrl + Hex.encodeHexString(baseUrl.getBytes());
+			StringBuilder builder = new StringBuilder()
+				.append("id=")
+				.append(id)
+				.append("&redirectTo=")
+				.append(Hex.encodeHexString(baseUrl.getBytes()));
+				
+			return builder.toString();
 		}
 			
 		return result;

@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.redxiii.tracplus.ejb.search.SearchResult;
+import com.redxiii.tracplus.ejb.util.UsageAnalysis;
 import com.redxiii.tracplus.web.context.AppSessionContext;
 
 @Dependent
@@ -30,6 +31,12 @@ public class FeedbackServlet extends HttpServlet {
     @Inject
     private AppSessionContext appCtx;
     
+    @Inject 
+    private UsageAnalysis usageAnalysis;
+    
+    @Inject
+    private SearchInfo searchInfo;
+    
     @Inject
     private List<SearchResult> results;
     
@@ -37,7 +44,6 @@ public class FeedbackServlet extends HttpServlet {
     private AppSessionContext ctx;
 
     public FeedbackServlet() throws ConsumerException {
-
        
     }
 
@@ -60,6 +66,11 @@ public class FeedbackServlet extends HttpServlet {
 				String url = new String(Hex.decodeHex(redirect.toCharArray()));
 				logger.debug("User '" + user + "' has clicked at: {}", url);
 				logger.debug("Redirecting to: {}", url);
+				
+				if (url.contains("/trac/")) {
+					usageAnalysis.logClick(Integer.parseInt(request.getParameter("id")));
+				}
+				
 				response.sendRedirect(url);
 				return;
 			} catch (DecoderException e) {

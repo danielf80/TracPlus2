@@ -70,7 +70,7 @@ public class SearchTest {
 
         Query query = indexManager.buildQuery(baseBuilder.createQuerySpec());
         System.out.println("Query: " + query.toString());
-        Set<SearchResult> resultSet = indexManager.doSearch(query);
+        Set<SearchResult> resultSet = indexManager.doSearch(1, query);
         
         for (SearchResult result : resultSet) {
             System.out.println("Result: " + result.getId());

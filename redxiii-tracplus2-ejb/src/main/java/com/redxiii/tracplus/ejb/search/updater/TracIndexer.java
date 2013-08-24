@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 import com.redxiii.tracplus.ejb.datasources.Datasource;
 import com.redxiii.tracplus.ejb.datasources.RecentWiki;
 import com.redxiii.tracplus.ejb.util.AppConfiguration;
-import com.redxiii.tracplus.ejb.util.UsageStatistics;
+import com.redxiii.tracplus.ejb.util.UsageAnalysis;
 
 @Stateless
 public class TracIndexer {
@@ -36,7 +36,7 @@ public class TracIndexer {
 	private Datasource datasource;
 	
 	@Inject 
-	private UsageStatistics usageStatistics;
+	private UsageAnalysis usageAnaysis;
 	
 	@Inject
 	private LuceneIndexManager luceneIndexManager;
@@ -71,7 +71,7 @@ public class TracIndexer {
 				if (AppConfiguration.getInstance().getBoolean("lucene.index-builder.update.attachments", false))
 					requestAttachmentIndexing(session, producer);
 				
-				usageStatistics.setLastIndexUpdate(System.currentTimeMillis());
+				usageAnaysis.setLastIndexUpdate(System.currentTimeMillis());
 				
 			} catch (JMSException e) {
 				logger.error("JMS error on message creation", e);
@@ -105,7 +105,7 @@ public class TracIndexer {
 				if (AppConfiguration.getInstance().getBoolean("lucene.index-builder.update.ticket", false)) {
 					requestChangedTicketIndexing(session, producer);
 				}
-				usageStatistics.setLastIndexUpdate(System.currentTimeMillis());
+				usageAnaysis.setLastIndexUpdate(System.currentTimeMillis());
                                 
 			} catch (JMSException e) {
 				logger.error("JMS error on message creation", e);
@@ -153,7 +153,7 @@ public class TracIndexer {
 	
 	private void requestChangedTicketIndexing(Session session, MessageProducer producer) throws JMSException {
 		
-		long lastUpdate = usageStatistics.getLastIndexUpdate();
+		long lastUpdate = usageAnaysis.getLastIndexUpdate();
 		logger.info("Getting changed tickets after: '{}' ...", formatter.print(lastUpdate));
 		
 		List<Integer> ticketIds = datasource.getChangeTicketsIds(lastUpdate);

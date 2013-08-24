@@ -193,8 +193,10 @@ public class LuceneIndexManager implements Serializable, SearchManager {
                         query = new TermQuery(new Term(field.name(), value));
                     }
                 }
-
-                fieldQuery.add(query, occur);
+                if (spec.isStrongRestriction(field, value))
+                	fieldQuery.add(query, Occur.MUST);
+                else
+                	fieldQuery.add(query, occur);
             }
         }
 
@@ -216,7 +218,7 @@ public class LuceneIndexManager implements Serializable, SearchManager {
 
     @javax.ejb.Lock(LockType.READ)
     @Override
-    public Set<SearchResult> doSearch(Query query) {
+    public Set<SearchResult> doSearch(int code, Query query) {
 
         logger.info("Query: '{}'", query);
         Set<SearchResult> results = new LinkedHashSet<SearchResult>();
@@ -237,7 +239,7 @@ public class LuceneIndexManager implements Serializable, SearchManager {
             int index = 0;
             for (ScoreDoc hit : hits) {
                 Document doc = searcher.doc(hit.doc);
-                results.add(new LuceneResult(index++, doc, hit.score));
+                results.add(new LuceneResult(code, index++, doc, hit.score));
             }
         } catch (CorruptIndexException e) {
             logger.error("Error searching Lucene index", e);

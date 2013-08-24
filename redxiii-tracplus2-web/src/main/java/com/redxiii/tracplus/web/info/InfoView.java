@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import com.redxiii.tracplus.ejb.util.AppConfiguration;
 import com.redxiii.tracplus.ejb.util.Statistics;
-import com.redxiii.tracplus.ejb.util.UsageStatistics;
+import com.redxiii.tracplus.ejb.util.UsageAnalysis;
 
 @Named
 @RequestScoped
@@ -32,14 +32,14 @@ public class InfoView implements Serializable {
 	private final Logger logger = LoggerFactory.getLogger(getClass()); 
 	
 	@Inject
-	private UsageStatistics usageStatistics;
+	private UsageAnalysis usageAnalysis;
 	
 	private Statistics statistics;
 
 	@PostConstruct
 	public void init() {
 		logger.info("Fetching stats...");
-		statistics = usageStatistics.getStatistics();
+		statistics = usageAnalysis.getStatistics();
 	}
 	
 	public String getSearchCount() {
@@ -67,7 +67,7 @@ public class InfoView implements Serializable {
 		Map<String, Integer> stats = new HashMap<String, Integer>( statistics.getSearchsPerUser() );
 		Map<String, Integer> statsGraph = new LinkedHashMap<String, Integer>();
 		
-		int iterations = Math.min(7, stats.size());
+		int iterations = Math.min(9, stats.size());
 		
 		for (int c = 0; c < iterations; c++) {
 			int maxCount = 0;
@@ -103,6 +103,27 @@ public class InfoView implements Serializable {
 		builder.setLength( builder.length() - 1 );
 		
 		return builder.toString();
+	}
+	
+	public String getClicksStatsGraph() {
+		
+		StringBuilder builder = new StringBuilder();
+		
+		int searchs = usageAnalysis.getCachedSearchQtd();
+		int zeroClicks = usageAnalysis.getCachedClickedSearchQtd(0);
+		int singleClicks = usageAnalysis.getCachedClickedSearchQtd(1);
+		int withoutResults = usageAnalysis.getCachedSearchQtdWithoutResults();
+		int multClicks = searchs - withoutResults - zeroClicks - singleClicks;
+		
+		builder
+			.append("['1 Click', ").append(singleClicks).append("],")
+			.append("['+ Clicks', ").append(multClicks).append("],")
+			.append("['0 Click', ").append(zeroClicks).append("],")
+			.append("['0 Results', ").append(withoutResults).append("]")
+			;
+		
+		return builder.toString();
+		
 	}
 
 	public List<SearchCount> getPeriodStats() {

@@ -72,3 +72,14 @@ select {
 	border: 	1px solid darkred;
 	margin: 	10px;
 }
+
+/* HOME styles */
+.top_nav_bar {
+	width: 		100%;
+	position: 	fixed;
+	z-index: 	990;
+	top:		0;
+	left: 		0;
+	background: transparent url("resources/gfx/bg/bg_nav_fade.png" repeat-x 0 62px);
+	height: 	100px;
+}

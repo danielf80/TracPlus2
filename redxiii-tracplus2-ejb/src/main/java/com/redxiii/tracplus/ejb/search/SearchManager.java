@@ -10,6 +10,6 @@ public interface SearchManager {
 
 	public abstract Query buildQuery(SimpleQuerySpec spec);
 
-	public abstract Set<SearchResult> doSearch(Query query);
+	public abstract Set<SearchResult> doSearch(int code, Query query);
 
 }

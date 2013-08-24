@@ -127,7 +127,7 @@
             <br/>		
             <ui:repeat value="#{searchView.results}" var="result" rendered="#{not empty searchView.results}">
                 <div id="#{result.context}-#{result.index}">
-                    <table>
+                    <table class='#{result.code % 2 == 0 ? "search-result-item-highlight": ""}'>
                         <tr>
                             <td rowspan="3" class="search-result-icon">
                                 <h:graphicImage value="/resources/gfx/#{searchView.getResultImage(result)}.png" />
@@ -149,8 +149,8 @@
                         </tr>
                         <tr>
                             <td>
-                                <span style="font-size: 10px; color: green">
-                                    <b>(<h:outputText value="#{result.score}"><f:convertNumber maxFractionDigits="3"/></h:outputText>)</b>: 
+                                <span style='font-size: 10px; color: green;'>
+                                    <b>(#{result.code} - <h:outputText value="#{result.score}"><f:convertNumber maxFractionDigits="3"/></h:outputText>)</b>: 
                                     #{result.id} by <b>#{result.author}</b>, modified at <b>#{result.modifiedDate}</b>
                                 </span>
                             </td>

@@ -14,6 +14,7 @@ import javax.inject.Named;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.codecs.*;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
@@ -76,6 +77,7 @@ public class LuceneIndexFactory implements Serializable {
 			this.writerConfig = new IndexWriterConfig(version, analyzer);
 			
 			this.writerConfig.setWriteLockTimeout(writeLockTimeout);
+//			this.writerConfig.setCodec(Compressing40Codec)
 		} catch (IOException e) {
 			logger.error("Error loading lucene index", e);
 		}

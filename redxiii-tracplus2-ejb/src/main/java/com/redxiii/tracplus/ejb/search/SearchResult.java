@@ -6,6 +6,7 @@ import org.apache.commons.lang.StringUtils;
 
 public interface SearchResult extends Comparable<SearchResult> {
 
+	int getCode();
 	int getIndex();
 	float getScore();
 	void setScore(float score);

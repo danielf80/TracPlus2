@@ -13,8 +13,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.PostConstruct;
+import javax.enterprise.context.RequestScoped;
 import javax.enterprise.context.SessionScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
@@ -27,11 +29,8 @@ import org.slf4j.LoggerFactory;
 import com.redxiii.tracplus.ejb.search.SearchManager;
 import com.redxiii.tracplus.ejb.search.SearchManagerFactory;
 import com.redxiii.tracplus.ejb.search.SearchResult;
-import com.redxiii.tracplus.ejb.search.TracStuffField;
-import com.redxiii.tracplus.ejb.search.query.QueryBuilder;
-import com.redxiii.tracplus.ejb.search.query.SimpleQuerySpec;
 import com.redxiii.tracplus.ejb.util.AppConfiguration;
-import com.redxiii.tracplus.ejb.util.UsageStatistics;
+import com.redxiii.tracplus.ejb.util.UsageAnalysis;
 import com.redxiii.tracplus.web.context.AppSessionContext;
 import com.redxiii.tracplus.web.util.SearchResultInvocationHandler;
 
@@ -41,8 +40,10 @@ public class SearchView implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private static final DecimalFormat decFormat = new DecimalFormat("#.###");
+	private static final AtomicInteger SEARCH_ID = new AtomicInteger(1);
+	
     private final Logger logger = LoggerFactory.getLogger(getClass());
-    private final List<SearchResult> results = new ArrayList<SearchResult>();
+
     private final List<FilterTypeSelection> filterTypeSelections;
     private final List<FilterPeriodSelection> filterPeriodSelections;
     private final List<SortSelection> sortSelections;
@@ -63,6 +64,11 @@ public class SearchView implements Serializable {
         @Override
         public int compare(SearchResult o1, SearchResult o2) {
 
+        	int result = Float.compare(o1.getCode(), o2.getCode());
+        	if (result != 0) {
+                return result;
+            }
+        	
             if (Math.abs(o1.getScore() - o2.getScore()) >= 1) {
                 return Float.compare(o2.getScore(), o1.getScore());
             }
@@ -82,7 +88,12 @@ public class SearchView implements Serializable {
         @Override
         public int compare(SearchResult o1, SearchResult o2) {
 
-            int result = Float.compare(o2.getScore(), o1.getScore());
+        	int result = Float.compare(o1.getCode(), o2.getCode());
+        	if (result != 0) {
+                return result;
+            }
+        	
+            result = Float.compare(o2.getScore(), o1.getScore());
             if (result != 0) {
                 return result;
             }
@@ -105,12 +116,19 @@ public class SearchView implements Serializable {
 
     @Inject
     private SearchManagerFactory searchManagerFactory;
+    
     @Inject
     private SearchInfo searchInfo;
+    
     @Inject
     private AppSessionContext ctx;
+    
     @Inject
-    private UsageStatistics usageStatistics;
+    private UsageAnalysis usageAnalysis;
+    
+    
+    @RequestScoped
+    private final List<SearchResult> results = new ArrayList<SearchResult>();
     
     private FilterTypeSelection selectedFilterType;
     private FilterPeriodSelection selectedFilterPeriod;
@@ -118,7 +136,6 @@ public class SearchView implements Serializable {
     private SearchMethod searchMethod;
     private String reportErrorLink;
 
-    private int stepTwoSmartSearchResults;
     
     public SearchView() {
         filterTypeSelections = new ArrayList<FilterTypeSelection>();
@@ -138,7 +155,6 @@ public class SearchView implements Serializable {
         selectedFilterPeriod = FilterPeriodSelection.all_entries;
         selectedSort = SortSelection.relevance;
         searchMethod = SearchMethod.approximate;
-        stepTwoSmartSearchResults = AppConfiguration.getInstance().getInt("web.search-manager.smart-search.two-step-minimal-results", 0);
     }
 
     @PostConstruct
@@ -165,6 +181,7 @@ public class SearchView implements Serializable {
     
     public void doSearch(String method) {
 
+    	final int searchId = SEARCH_ID.getAndIncrement();
         results.clear();
 
         if (ctx != null && ctx.getUser() != null) {
@@ -181,68 +198,44 @@ public class SearchView implements Serializable {
         long initSearch = System.currentTimeMillis();
         searchMethod = SearchMethod.valueOf(method);
 
-        String interpreted = makeSearch();
+        String interpreted = makeSearch(searchId);
 
         long elapsedTime = System.currentTimeMillis() - initSearch;
 
         searchInfo.setInterpretedQuery(interpreted);
         searchInfo.setElapsedTime(decFormat.format((double) elapsedTime / 1000D));
 
-        usageStatistics.logSearch(ctx.getUser().getName(), interpreted, elapsedTime);
+        usageAnalysis.logSearch(ctx.getUser().getName(), interpreted, elapsedTime, searchId, results);
+        
         logger.info("Search done in {} ms. Quantity # {}", elapsedTime, results.size());
     }
     
-    private String makeSearch() {
+    private String makeSearch(int searchId) {
         logger.info("Creating SearchManager instance");
+        
+        
         SearchManager manager = searchManagerFactory.getManager();
-
-        logger.debug("Creating query...");
-        QueryBuilder<SimpleQuerySpec> baseBuilder = QueryBuilder.buildSimpleQuery();
+        AbstractSearchHelper searchHelper = null;
         
-        switch (selectedFilterType) {
-            case ticket:
-            case wiki:
-                baseBuilder.addStrongRestriction(selectedFilterType.name(), TracStuffField.CONTEXT);
-                break;
-            case none:
-            	break;
-			default:
-				break;
+        switch(searchMethod) {
+        	case smart:
+        		searchHelper = new SmartSearch(manager);
+        		break;
+        	case advanced:
+        		searchHelper = new LuceneSearch(manager);
+        		break;
+        		
+        	default:
+        		return "?";
         }
-
-        if (!selectedFilterPeriod.equals(FilterPeriodSelection.all_entries)) {
-            baseBuilder.enableRecentFilter(selectedFilterPeriod.days);
-        }
-                
-		QueryBuilder<SimpleQuerySpec> queryBuilder = baseBuilder.clone();
+        searchHelper.setPeriodSelection(selectedFilterPeriod);
+        searchHelper.setTypeSelection(selectedFilterType);
         
-        switch (searchMethod) {
-            case advanced:
-                queryBuilder.addLuceneRestriction(searchInfo.getSearchText());
-                break;
-
-            default:
-            case smart:
-                queryBuilder.addStrongRestriction(searchInfo.getSearchText(), TracStuffField.CONTENT);
-                break;
-        }
-        
-        Query query = manager.buildQuery(queryBuilder.createQuerySpec());
-        
-        Set<SearchResult> resultSet = manager.doSearch(query);
-        if (searchMethod == SearchMethod.smart && resultSet.size() < stepTwoSmartSearchResults) {
-            for (SearchResult result : resultSet) {
-                result.setScore(result.getScore() + 5);
-            }
-            logger.info("'Smart Search' return empty set. Trying 'Approximate + Precise Search' ...");
-            
-            baseBuilder.addLikeRestriction(searchInfo.getSearchText(), TracStuffField.CONTENT);
-            query = manager.buildQuery(baseBuilder.createQuerySpec());
-            resultSet.addAll(manager.doSearch(query));
-        }
+        Set<SearchResult> resultSet = searchHelper.doSearch(searchInfo);
+        Query query = searchHelper.getQuery();      
         
         logger.debug("Searching and sorting...");
-        results.addAll(getTransformedResults(getSortedResults(resultSet)));
+        results.addAll(getTransformedResults(searchId, getSortedResults(resultSet)));
         
         if (results.isEmpty()) {
             prepareEmptyResultLink(query.toString());
@@ -300,7 +293,7 @@ public class SearchView implements Serializable {
         return sorted;
     }
     
-	private Set<SearchResult> getTransformedResults(Set<SearchResult> results) {
+	private Set<SearchResult> getTransformedResults(int searchId, Set<SearchResult> results) {
     	
     	Set<SearchResult> transformed = Collections.emptySet();
     	try {
@@ -311,7 +304,7 @@ public class SearchView implements Serializable {
 						.newProxyInstance(
 								this.getClass().getClassLoader(), 
 								new Class[]{SearchResult.class}, 
-								new SearchResultInvocationHandler(result, "redirectTo="));
+								new SearchResultInvocationHandler(searchId, result));
 				
 				transformed.add(proxy);
 			}

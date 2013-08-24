@@ -21,8 +21,20 @@ public class Statistics {
 	
 	private long totalElapsedTime;	//TODAY
 	
+	private int searchWithResultsCount;
+	private int searchWithoutResultsCount;
+	private int searchWithManyClick;
+	private int searchWithOneClick;
+	private int searchWithZeroClick;
+	
 	private Set<String> todayUsers = new TreeSet<String>();
 
+	public void resetTodayStats() {
+		todayUsers.clear();
+		totalElapsedTime = 0;
+		todaySearchCount = 0;
+	}
+	
 	/**
 	 * @return average search speed in milliseconds
 	 */
@@ -33,7 +45,7 @@ public class Statistics {
 		return Math.max(totalElapsedTime / todaySearchCount, 1);
 	}
 	
-	public void logSearch(String user, String period, String term, long time) {
+	public void logSearch(String user, String period, String term, long time, int resultsQtd) {
 		
 		searchCount++;
 		todaySearchCount++;
@@ -51,6 +63,25 @@ public class Statistics {
 			searchsPerPeriod.put(period, searchsPerPeriod.get(period) + 1);
 		} else {
 			searchsPerPeriod.put(period, 1);
+		}
+		
+		if (resultsQtd > 0)
+			searchWithResultsCount++;
+		else
+			searchWithoutResultsCount++;
+		searchWithZeroClick++;
+	}
+	
+	public void logClick(int clicks) {
+		switch (clicks) {
+			case 1:
+				searchWithZeroClick--;
+				searchWithOneClick++;
+				break;
+			case 2:
+				searchWithOneClick--;
+				searchWithManyClick++;
+			break;
 		}
 	}
 	
@@ -82,4 +113,46 @@ public class Statistics {
 	public void setSearchCount(int totalSearchs) {
 		this.searchCount = totalSearchs;
 	}
+
+	public int getSearchWithResultsCount() {
+		return searchWithResultsCount;
+	}
+
+	public void setSearchWithResultsCount(int searchWithResultsCount) {
+		this.searchWithResultsCount = searchWithResultsCount;
+	}
+
+	public int getSearchWithoutResultsCount() {
+		return searchWithoutResultsCount;
+	}
+
+	public void setSearchWithoutResultsCount(int searchWithoutResultsCount) {
+		this.searchWithoutResultsCount = searchWithoutResultsCount;
+	}
+
+	public int getSearchWithManyClick() {
+		return searchWithManyClick;
+	}
+
+	public void setSearchWithManyClick(int searchWithMulipleClick) {
+		this.searchWithManyClick = searchWithMulipleClick;
+	}
+
+	public int getSearchWithOneClick() {
+		return searchWithOneClick;
+	}
+
+	public void setSearchWithOneClick(int searchWithOneClick) {
+		this.searchWithOneClick = searchWithOneClick;
+	}
+
+	public int getSearchWithZeroClick() {
+		return searchWithZeroClick;
+	}
+
+	public void setSearchWithZeroClick(int searchWithZeroClick) {
+		this.searchWithZeroClick = searchWithZeroClick;
+	}
+	
+	
 }

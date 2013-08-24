@@ -37,7 +37,7 @@ public class CachedSearchManager implements SearchManager {
 
     @SuppressWarnings("unchecked")
     @Override
-    public Set<SearchResult> doSearch(Query query) {
+    public Set<SearchResult> doSearch(int code, Query query) {
 
         logger.debug("Getting results from cache: {}", query.toString());
         Object obj = cachedResults.getIfPresent(query.toString());
@@ -47,7 +47,7 @@ public class CachedSearchManager implements SearchManager {
         }
 
         logger.debug("Cached results not found");
-        Set<SearchResult> results = delegate.doSearch(query);
+        Set<SearchResult> results = delegate.doSearch(code, query);
         
         if (results.size() > 0)
             cachedResults.put(query.toString(), results);

@@ -55,6 +55,7 @@
 
 .search-result-panel {
 	padding: 15px;
+	float:	left;
 }
 
 .search-result-panel DIV {
@@ -84,4 +85,9 @@
 
 .search-table-options {
     border-spacing: 1px;
+}
+
+.search-result-item-highlight {
+    background: linear-gradient(to right, rgba(9,74,127,.1), rgba(9,74,127,.0));
+	width: 100%;
 }

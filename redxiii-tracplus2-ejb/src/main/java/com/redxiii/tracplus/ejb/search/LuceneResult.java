@@ -7,6 +7,7 @@ import org.apache.lucene.document.Document;
 
 public class LuceneResult implements SearchResult {
 
+	private int code;
 	private int index;
     private String id;
     private String modifiedDate;
@@ -16,7 +17,8 @@ public class LuceneResult implements SearchResult {
     private TicketStatus status;
     private List<String> fragments = new ArrayList<String>();
 
-    public LuceneResult(int index, Document document, float score) {
+    public LuceneResult(int code, int index, Document document, float score) {
+    	this.code = code;
     	this.index = index;
         this.document = document;
         this.score = score;
@@ -25,7 +27,7 @@ public class LuceneResult implements SearchResult {
         this.context = document.get(TracStuffField.CONTEXT.toString());
         this.status = TicketStatus.getStatus(document.get(TracStuffField.STATUS.toString()));
     }
-
+    
     @Override
     public int compareTo(SearchResult other) {
         return this.id.compareTo(other.getId());
@@ -48,6 +50,14 @@ public class LuceneResult implements SearchResult {
         return this.getId().hashCode();
     }
 
+    @Override
+    public int getCode() {
+    	return this.code;
+    }
+    public void setCode(int code) {
+		this.code = code;
+	}
+    
     public void addFragment(String fragment) {
         this.fragments.add(fragment);
     }
