@@ -14,7 +14,6 @@ import javax.inject.Named;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.codecs.*;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
@@ -72,7 +71,7 @@ public class LuceneIndexFactory implements Serializable {
 				logger.debug("Starting NIO-FS directory");
 				this.directory = new NIOFSDirectory(path);
 			}
-			this.version = Version.LUCENE_43;
+			this.version = Version.LUCENE_46;
 			this.analyzer = new StandardAnalyzer(version);
 			this.writerConfig = new IndexWriterConfig(version, analyzer);
 			
