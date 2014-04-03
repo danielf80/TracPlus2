@@ -1,7 +1,6 @@
 package com.redxiii.tracplus.web.search;
 
 import java.io.IOException;
-import java.util.List;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
@@ -17,7 +16,6 @@ import org.openid4java.consumer.ConsumerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.redxiii.tracplus.ejb.search.SearchResult;
 import com.redxiii.tracplus.ejb.util.UsageAnalysis;
 import com.redxiii.tracplus.web.context.AppSessionContext;
 
@@ -28,17 +26,8 @@ public class FeedbackServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private final Logger logger = LoggerFactory.getLogger(getClass());
     
-    @Inject
-    private AppSessionContext appCtx;
-    
     @Inject 
     private UsageAnalysis usageAnalysis;
-    
-    @Inject
-    private SearchInfo searchInfo;
-    
-    @Inject
-    private List<SearchResult> results;
     
     @Inject
     private AppSessionContext ctx;
