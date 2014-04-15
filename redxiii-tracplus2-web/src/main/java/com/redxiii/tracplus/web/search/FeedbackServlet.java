@@ -5,6 +5,7 @@ import java.io.IOException;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -60,7 +61,17 @@ public class FeedbackServlet extends HttpServlet {
 					usageAnalysis.logClick(Integer.parseInt(request.getParameter("id")));
 				}
 				
-				response.sendRedirect(url);
+				StringBuilder buffer = new StringBuilder()
+					.append("<html><head><meta http-equiv=\"Refresh\" content=\"1; URL=")
+					.append(url)
+					.append("\"></head><body><center><span>Redirecting</span></center></body></html>")
+					;
+				
+				ServletOutputStream stream = response.getOutputStream();
+				stream.print(buffer.toString());
+				stream.flush();
+				stream.close();
+//				response.sendRedirect(response.encodeRedirectURL(url));
 				return;
 			} catch (DecoderException e) {
 				logger.error("Invalid redirect url: {}", redirect, e);

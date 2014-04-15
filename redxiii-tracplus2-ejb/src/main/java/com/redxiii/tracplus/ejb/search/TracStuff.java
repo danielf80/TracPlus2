@@ -31,8 +31,8 @@ public class TracStuff {
 	private static String getBaseUrl() {
 		String host = AppConfiguration.getInstance().getString("trac.web.url");
 		if (host == null)
-			host = "localhost";
-		return "http://" + host + "/trac/"; 
+			host = "http://localhost";
+		return host + "/trac/"; 
 	}
 	
 	public TracStuff(Ticket ticket){

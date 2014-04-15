@@ -27,7 +27,7 @@ public class IndexUpdaterScheduler {
     @Inject
 	private IndexingStatistics indexingStatistics;
 
-    @Schedule(hour = "6", minute = "0", second = "0")
+    @Schedule(persistent = false, hour = "6", minute = "0", second = "0")
     public void completeUpdate() {
 
         if (AppConfiguration.getInstance().getBoolean("lucene.index-builder.update.daily", false)) {
@@ -38,7 +38,7 @@ public class IndexUpdaterScheduler {
         }
     }
 
-    @Schedule(hour = "7-21", minute = "*/15", second = "0")
+    @Schedule(persistent = false, hour = "7-21", minute = "*/15", second = "0")
     public void incrementalUpdate() {
 
         if (AppConfiguration.getInstance().getBoolean("lucene.index-builder.update.incremental", false)) {

@@ -49,7 +49,7 @@ public class LuceneIndexFactory implements Serializable {
 	private Version version;
 	private Directory directory;
 	private StandardAnalyzer analyzer;
-	private IndexWriterConfig writerConfig;
+//	private IndexWriterConfig writerConfig;
 	private long writeLockTimeout = 30 * 1000;
 	private long writeLockRetries = 5;
 	
@@ -71,11 +71,11 @@ public class LuceneIndexFactory implements Serializable {
 				logger.debug("Starting NIO-FS directory");
 				this.directory = new NIOFSDirectory(path);
 			}
-			this.version = Version.LUCENE_46;
+			this.version = Version.LUCENE_47;
 			this.analyzer = new StandardAnalyzer(version);
-			this.writerConfig = new IndexWriterConfig(version, analyzer);
+//			this.writerConfig = new IndexWriterConfig(version, analyzer);
 			
-			this.writerConfig.setWriteLockTimeout(writeLockTimeout);
+//			this.writerConfig.setWriteLockTimeout(writeLockTimeout);
 //			this.writerConfig.setCodec(Compressing40Codec)
 		} catch (IOException e) {
 			logger.error("Error loading lucene index", e);
@@ -98,6 +98,10 @@ public class LuceneIndexFactory implements Serializable {
 		for (int c = 0; c < writeLockRetries; c++) {
 	        try {
 	        	logger.info("Creating index writer");
+	        	
+	        	IndexWriterConfig writerConfig = new IndexWriterConfig(version, analyzer);
+	        	writerConfig.setWriteLockTimeout(writeLockTimeout);
+	        	
 	            return new IndexWriter(directory, writerConfig);
 	            
 	        } catch (LockObtainFailedException e) {
