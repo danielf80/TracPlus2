@@ -85,9 +85,7 @@
 							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
 						</manifest>
 						<manifestEntries>
-							<Dependencies>org.slf4j, org.joda.time, com.google.guava,
-								org.apache.commons.configuration, org.apache.commons.lang,
-								org.apache.commons.codec, org.apache.commons.io</Dependencies>
+							<Dependencies>org.slf4j, org.joda.time, com.google.guava, org.apache.commons.configuration, org.apache.commons.lang, org.apache.commons.codec, org.apache.commons.io</Dependencies>
 							<SCM-Revision>${buildNumber}</SCM-Revision>
 							<Build-TimeStamp>${maven.build.timestamp}</Build-TimeStamp>
 						</manifestEntries>
